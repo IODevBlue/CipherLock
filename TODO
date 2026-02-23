@@ -1,2 +1,15 @@
+CipherIgnore Templates:
+     [ ] This is the same as .gitinore templates. Get as many as possible for multiple languages and frameworks. This will be used to ignore files that are not relevant to the project, such as build artifacts, logs, and temporary files.
+     [ ] Create a .cipherignore file that can be used to specify patterns for files and directories to ignore when performing operations like encryption and decryption. This will help keep the project organized and prevent unnecessary files from being processed. 
+
 Enhancements for TOTP:  
-     
+     [ ] Allowing users to specify the length of the TOTP code (default: 6 digits)
+     [ ] Allow setting the timezone for TOTP generation and verification
+     [ ] Setting the duration of the TOTP code (default: 30 seconds)
+     [ ] Allowing users to specify the hashing algorithm (default: SHA-1)
+     [ ] Providing an option to generate a QR code for easy setup with authenticator apps
+     [ ] Implementing a feature to verify TOTP codes against the current time
+     [ ] Adding support for multiple TOTP accounts and managing them within the tool
+
+Localization:
+     [ ] Implementing localization support to allow users to use the tool in their preferred language. This could involve creating a system for managing translations and allowing users to switch between languages easily.
