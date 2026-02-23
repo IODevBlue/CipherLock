@@ -3,6 +3,7 @@ project(CipherLock VERSION 1.0.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Find OpenSSL
 find_package(OpenSSL REQUIRED)
@@ -11,11 +12,8 @@ find_package(OpenSSL REQUIRED)
 include_directories(include)
 
 # Executable
-add_executable(cipherlock 
-    src/main.cpp 
-    src/Vault.cpp 
-    src/TOTP.cpp
-)
+file(GLOB_RECURSE SOURCES src/*.cpp)
+add_executable(cipherlock ${SOURCES})
 
 # Link libraries
 target_link_libraries(cipherlock 

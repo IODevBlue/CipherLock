@@ -3,7 +3,8 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "/usr/local/Cellar/openssl@3/3.6.0/include"
             ],
             "defines": [],
             "compilerPath": "/usr/local/opt/llvm/bin/clang",

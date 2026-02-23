@@ -3,6 +3,7 @@
 
 #include <string>
 #include <iostream>
+#include "I18n.hpp" // Include I18n for localization
 
 namespace UI {
     const std::string LOGO = R"(
@@ -13,22 +14,21 @@ namespace UI {
  \____|_| .__/|_| |_|\___|_|  |_____\___/ \___|_|\_\ 
         |_|                                           
     )";
-    // TODO: Check if this subtitle captures the functionality of this tooling
-    const std::string SUBTITLE = "      >> SECURE CODEBASE ENCRYPTOR <<";
 
-    inline void print_welcome(const std::string& version) {
+    inline void print_welcome(const std::string& version, const std::string& lang) { // TODO: Test this method (modified by Gemini)
         std::cout << "\033[1;36m" << LOGO << "\033[0m"; // Cyan logo
-        std::cout << "\033[1;33m" << SUBTITLE << "\033[0m\n"; // Yellow subtitle
-        std::cout << "             [ Version " << version << " ]\n" << std::endl;
+        std::cout << "\033[1;33m" << I18n::instance().t("ui.subtitle") << "\033[0m\n"; // Yellow subtitle
+        std::cout << I18n::instance().t("ui.welcome", {{"version", version}, {"lang", lang}}) << "\n" << std::endl;
     }
 
-    inline void print_usage() {
-        std::cout << "Usage:\n";
-        std::cout << "  \033[1;32mcipherlock init [dir]\033[0m              Initialize a new vault (default: current dir)\n";
-        std::cout << "  \033[1;32mcipherlock boot\033[0m                      Start interactive 'Hot' mode\n";
-        std::cout << "  \033[1;32mcipherlock <src> <key_file> <dest>\033[0m   Run one-off 'Cold' encryption\n";
-        std::cout << "  cipherlock --help | -h               Show this help message\n";
-        std::cout << "  cipherlock --version | -v            Show version information\n";
+    inline void print_usage() { // TODO: Test this method (modified by Gemini)
+        std::cout << I18n::instance().t("ui.usage_title") << "\n";
+        std::cout << "  \033[1;32mcipherlock init [dir]\033[0m              " << I18n::instance().t("ui.usage_init") << "\n";
+        std::cout << "  \033[1;32mcipherlock boot\033[0m                      " << I18n::instance().t("ui.usage_boot") << "\n";
+        std::cout << "  \033[1;32mcipherlock lang [code|--list]\033[0m       " << I18n::instance().t("ui.usage_lang") << "\n";
+        std::cout << "  \033[1;32mcipherlock <src> <key_file> <dest>\033[0m   " << I18n::instance().t("ui.usage_cold") << "\n";
+        std::cout << "  cipherlock --help | -h               " << I18n::instance().t("ui.usage_help") << "\n";
+        std::cout << "  cipherlock --version | -v            " << I18n::instance().t("ui.usage_version") << "\n";
     }
 }
 

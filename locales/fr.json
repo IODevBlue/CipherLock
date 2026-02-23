@@ -1,0 +1,69 @@
+{
+    "_meta": {
+        "name": "Français (fr)"
+    },
+    "common": {
+        "error_unrecognized_command": "❌ Erreur : Commande non reconnue : '{cmd}'"
+    },
+    "vault": {
+        "initialized": "🔧 Coffre-fort initialisé à : {path}",
+        "reinitialized": "🔄 Coffre-fort existant réinitialisé à: {path}",
+        "created_ignore": "📝 Fichier .cipherignore par défaut créé",
+        "totp_secret": "🔑 SECRET TOTP : {secret}",
+        "save_secret_warning": "⚠️  Sauvegardez ce secret ! Vous en aurez besoin pour générer des codes.",
+        "locked": "🔒 Verrouillé : {path}",
+        "armed_success": "✅ COFFRE-FORT ARMÉ : {count} fichiers chiffrés",
+        "unlocked": "🔓 Déverrouillé : {path}",
+        "disarmed_success": "✅ COFFRE-FORT DÉSARMÉ : {count} fichiers restaurés",
+        "status": "📊 État du coffre-fort : {status}",
+        "location": "📍 Emplacement : {path}",
+        "laser_grid": "🚨 GRILLE DE DÉFENSE LASER ACTIVE 🚨",
+        "arming_progress": "Armement du coffre-fort...",
+        "enter_password_encrypt": "Entrez le mot de passe de chiffrement : ",
+        "enter_password_decrypt": "Entrez le mot de passe de déchiffrement : ",
+        "enter_totp": "Entrez le code TOTP : ",
+        "invalid_totp": "❌ Code TOTP invalide !",
+        "error_init_failed": "❌ Erreur : Échec de l'initialisation du coffre-fort dans '{path}'. Vérifiez les autorisations.",
+        "error_no_vault": "❌ Erreur : Aucun coffre-fort trouvé dans '{path}'. Exécutez d'abord 'init'.",
+        "error_read_secret": "❌ Erreur : Impossible de lire le secret TOTP depuis la configuration.",
+        "error_key_file": "❌ Erreur : Impossible d'ouvrir le fichier de clé : {file}"
+    },
+    "ui": {
+        "subtitle": "      >> CHIFFREUR DE CODEBASE SÉCURISÉ <<",
+        "welcome": "           [ Version {version} | {lang} ]",
+        "usage_title": "Utilisation :",
+        "usage_init": "Initialiser un nouveau coffre-fort (défaut : répertoire actuel)",
+        "usage_boot": "Démarrer le mode interactif 'Hot'",
+        "usage_lang": "Vérifier la langue, la changer ou lister les langues disponibles",
+        "usage_cold": "Exécuter un chiffrement unique 'Cold'",
+        "usage_help": "Afficher ce message d'aide",
+        "usage_version": "Afficher les informations de version",
+        "version": "CipherLock v{version}",
+        "hot_mode_active": "🚀 CipherLock v{version} - Mode 'Hot' Actif",
+        "cold_mode_active": "❄️ CipherLock v{version} - Mode 'Cold' Initialisé",
+        "selection": "Sélection : ",
+        "path": "Chemin : ",
+        "password": "Mot de passe : ",
+        "totp": "TOTP : ",
+        "invalid_totp": "❌ TOTP invalide",
+        "totp_display": "🔑 TOTP : {code} ({seconds}s)",
+        "invalid_option": "Option invalide",
+        "hot_mode_menu_options": "[1] Configurer | [2] Armer | [3] Désarmer | [4] TOTP | [5] État | [6] Paramètres | [7] Quitter"
+    },
+    "settings": {
+        "menu_title": "⚙️ Paramètres",
+        "menu_options": "[1] Changer de langue | [2] Lister les langues | [3] Retour au menu principal",
+        "enter_lang_code": "Entrez le code de la langue : ",
+        "lang_changed": "Langue changée en : {lang}",
+        "lang_change_failed": "Échec du changement de langue vers '{lang}'. Le fichier n'existe peut-être pas.",
+        "available_languages": "Langues disponibles :"
+    },
+    "lang_command": {
+        "current_lang": "Langue actuelle : ",
+        "available_langs_title": "Langues disponibles :",
+        "available_langs_prefix": "- ",
+        "lang_changed_from_to": "Langue changée de {old_lang_name} à {new_lang_name}",
+        "lang_change_failed": "Échec du changement de langue vers '{lang}'. Le fichier de locale peut ne pas exister.",
+        "falling_back_lang": "Retour à la langue par défaut : {lang}"
+    }
+}

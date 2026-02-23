@@ -1,4 +1,5 @@
 #include "Vault.hpp"
+#include "I18n.hpp"
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -6,6 +7,8 @@
 #include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <nlohmann/json.hpp>
+
+// TODO: HMAC() is technically deprecated in favor of the newer EVP_MAC API. It still works for now.
 
 using json = nlohmann::json;
 
@@ -30,7 +33,7 @@ void Vault::display_laser_grid() const { // TODO: Test this method (Gemini)
         // #else
         //     system("clear");
         // #endif
-        std::cout << "\n🚨 LASER DEFENSE GRID ACTIVE 🚨\n";
+        std::cout << "\n" << I18n::instance().t("vault.laser_grid") << "\n";
         for (const auto& line : frames) {
             std::cout << line << std::endl;
         }
@@ -89,7 +92,7 @@ bool Vault::setup(const std::string& directory) { // TODO: Test this method (mod
     fs::path config_file_path = config_dir / "config.json";
 
     if (fs::exists(config_dir) && fs::exists(config_file_path)) {
-        std::cout << "\033[1;33m🔄 Reinitialized existing Vault at: " << vault_root.string() << "\033[0m" << std::endl;
+        std::cout << "\033[1;33m" << I18n::instance().t("vault.reinitialized", {{"path", vault_root.string()}}) << "\033[0m" << std::endl;
         return true;
     }
     
@@ -102,7 +105,7 @@ bool Vault::setup(const std::string& directory) { // TODO: Test this method (mod
     if (!fs::exists(ignore_file)) {
         std::ofstream out(ignore_file);
         out << ".git/\n.cipherlock/\n.DS_Store\nnode_modules/\nbuild/\n";
-        std::cout << "📝 Created default .cipherignore\n";
+        std::cout << I18n::instance().t("vault.created_ignore") << std::endl;
     }
 
     // 2. Generate TOTP Secret
@@ -134,9 +137,9 @@ bool Vault::setup(const std::string& directory) { // TODO: Test this method (mod
     if (!config_file) return false;
     config_file << config.dump(4);
     
-    std::cout << "\033[1;32m🔧 Vault initialized at: " << vault_root.string() << "\033[0m" << std::endl;
-    std::cout << "\033[1;33m🔑 TOTP SECRET: " << base32_secret << "\033[0m" << std::endl;
-    std::cout << "⚠️  Save this secret! You will need it to generate codes." << std::endl;
+    std::cout << "\033[1;32m" << I18n::instance().t("vault.initialized", {{"path", vault_root.string()}}) << "\033[0m" << std::endl;
+    std::cout << "\033[1;33m" << I18n::instance().t("vault.totp_secret", {{"secret", base32_secret}}) << "\033[0m" << std::endl;
+    std::cout << I18n::instance().t("vault.save_secret_warning") << std::endl;
     
     return true;
 }
@@ -181,6 +184,7 @@ std::vector<std::regex> Vault::read_ignore_patterns() { // TODO: Test this metho
 }
 
 bool Vault::should_ignore(const fs::path& path, const std::vector<std::regex>& patterns) { // TODO: Test this method (Gemini)
+    // TODO: Reinforce this function. Making sure it is robust asf
     std::string rel_path = fs::relative(path, vault_root).string();
     for (const auto& pattern : patterns) {
         if (std::regex_match(rel_path, pattern) || std::regex_search(rel_path, pattern)) {
@@ -191,6 +195,7 @@ bool Vault::should_ignore(const fs::path& path, const std::vector<std::regex>& p
 }
 
 bool Vault::encrypt_file(const fs::path& filepath, const std::string& password) { // TODO: Test this method (Gemini)
+    // TODO: Use a chunk-based processing loop (e.g., 4KB at a time). Current implementation reads entire file into memory, which is not scalable for large files.
     std::ifstream in(filepath, std::ios::binary);
     if (!in) return false;
     std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -257,7 +262,7 @@ bool Vault::decrypt_file(const fs::path& filepath, const std::string& password) 
     return true;
 }
 
-bool Vault::arm(const std::string& password) { // TODO: Test this method (Gemini)
+bool Vault::arm(const std::string& password) { // TODO: Test this method (modified by Gemini)
     display_laser_grid();
     auto patterns = read_ignore_patterns();
     int count = 0;
@@ -265,7 +270,7 @@ bool Vault::arm(const std::string& password) { // TODO: Test this method (Gemini
         if (entry.is_regular_file() && !should_ignore(entry.path(), patterns)) {
             if (encrypt_file(entry.path(), password)) {
                 count++;
-                std::cout << "🔒 Locked: " << fs::relative(entry.path(), vault_root) << std::endl;
+                std::cout << I18n::instance().t("vault.locked", {{"path", fs::relative(entry.path(), vault_root).string()}}) << std::endl;
             }
         }
     }
@@ -279,18 +284,18 @@ bool Vault::arm(const std::string& password) { // TODO: Test this method (Gemini
     std::ofstream config_file(vault_root / ".cipherlock" / "config.json");
     config_file << config.dump(4);
 
-    std::cout << "\n\033[1;32m✅ VAULT ARMED: " << count << " files encrypted\033[0m" << std::endl;
+    std::cout << "\n\033[1;32m" << I18n::instance().t("vault.armed_success", {{"count", std::to_string(count)}}) << "\033[0m" << std::endl;
     return true;
 }
 
-bool Vault::disarm(const std::string& password) { // TODO: Test this method (Gemini)
+bool Vault::disarm(const std::string& password) { // TODO: Test this method (modified by Gemini)
     auto patterns = read_ignore_patterns();
     int count = 0;
     for (const auto& entry : fs::recursive_directory_iterator(vault_root)) {
         if (entry.is_regular_file() && entry.path().extension() == ".locked") {
             if (decrypt_file(entry.path(), password)) {
                 count++;
-                std::cout << "🔓 Unlocked: " << fs::relative(entry.path(), vault_root) << std::endl;
+                std::cout << I18n::instance().t("vault.unlocked", {{"path", fs::relative(entry.path(), vault_root).string()}}) << std::endl;
             }
         }
     }
@@ -303,11 +308,12 @@ bool Vault::disarm(const std::string& password) { // TODO: Test this method (Gem
     std::ofstream config_file(vault_root / ".cipherlock" / "config.json");
     config_file << config.dump(4);
 
-    std::cout << "\n\033[1;32m✅ VAULT DISARMED: " << count << " files restored\033[0m" << std::endl;
+    std::cout << "\n\033[1;32m" << I18n::instance().t("vault.disarmed_success", {{"count", std::to_string(count)}}) << "\033[0m" << std::endl;
     return true;
 }
 
-void Vault::display_status() const { // TODO: Test this method (Gemini)
-    std::cout << "\n📊 Vault Status: " << (is_armed ? "ARMED 🔒" : "DISARMED 🔓") << std::endl;
-    std::cout << "📍 Location: " << vault_root << std::endl;
+void Vault::display_status() const { // TODO: Test this method (modified by Gemini)
+    std::string status = is_armed ? "ARMED 🔒" : "DISARMED 🔓";
+    std::cout << "\n" << I18n::instance().t("vault.status", {{"status", status}}) << std::endl;
+    std::cout << I18n::instance().t("vault.location", {{"path", vault_root.string()}}) << std::endl;
 }

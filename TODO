@@ -10,6 +10,11 @@ Enhancements for TOTP:
      [ ] Providing an option to generate a QR code for easy setup with authenticator apps
      [ ] Implementing a feature to verify TOTP codes against the current time
      [ ] Adding support for multiple TOTP accounts and managing them within the tool
+     [ ] Base32 Decoding: Your manual decoder is a bit fragile (it doesn't handle padding = or ignore spaces). Since you're already using OpenSSL, consider standardizing this.
 
 Localization:
      [ ] Implementing localization support to allow users to use the tool in their preferred language. This could involve creating a system for managing translations and allowing users to switch between languages easily.
+     [ ] French translations need help. It is AI generated.
+
+Vault:
+     [ ] PBKDF2 Iterations: You are using 10,000 iterations. In 2026, this is considered low for high-security applications. Recommendation: Increase this to at least 600,000 iterations or switch to Argon2id.

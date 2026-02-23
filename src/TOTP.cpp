@@ -40,6 +40,7 @@ TOTP::~TOTP() { // TODO: Test this method (Gemini)
 }
 
 void TOTP::zeroize_secret() { // TODO: Test this method (Gemini)
+    // TODO: Consider using OPENSSL_cleanse(secret_key.data(), secret_key.size()) for guaranteed memory wiping.
     std::fill(secret_key.begin(), secret_key.end(), 0);
 }
 

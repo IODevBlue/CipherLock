@@ -1,0 +1,69 @@
+{
+    "_meta": {
+        "name": "English (en)"
+    },
+    "common": {
+        "error_unrecognized_command": "❌ Error: Unrecognized command: '{cmd}'"
+    },
+    "vault": {
+        "initialized": "🔧 Vault initialized at: {path}",
+        "reinitialized": "🔄 Reinitialized existing Vault at: {path}",
+        "created_ignore": "📝 Created default .cipherignore",
+        "totp_secret": "🔑 TOTP SECRET: {secret}",
+        "save_secret_warning": "⚠️  Save this secret! You will need it to generate codes.",
+        "locked": "🔒 Locked: {path}",
+        "armed_success": "✅ VAULT ARMED: {count} files encrypted",
+        "unlocked": "🔓 Unlocked: {path}",
+        "disarmed_success": "✅ VAULT DISARMED: {count} files restored",
+        "status": "📊 Vault Status: {status}",
+        "location": "📍 Location: {path}",
+        "laser_grid": "🚨 LASER DEFENSE GRID ACTIVE 🚨",
+        "arming_progress": "Arming vault...",
+        "enter_password_encrypt": "Enter encryption password: ",
+        "enter_password_decrypt": "Enter decryption password: ",
+        "enter_totp": "Enter TOTP code: ",
+        "invalid_totp": "❌ Invalid TOTP code!",
+        "error_init_failed": "❌ Error: Failed to initialize vault in '{path}'. Check permissions.",
+        "error_no_vault": "❌ Error: No vault found in '{path}'. Run 'init' first.",
+        "error_read_secret": "❌ Error: Could not read TOTP secret from config.",
+        "error_key_file": "❌ Error: Cannot open key file: {file}"
+    },
+    "ui": {
+        "subtitle": "      >> SECURE CODEBASE ENCRYPTOR <<",
+        "welcome": "           [ Version {version} | {lang} ]",
+        "usage_title": "Usage:",
+        "usage_init": "Initialize a new vault (default: current dir)",
+        "usage_boot": "Start interactive 'Hot' mode",
+        "usage_lang": "Check language, change it, or list available languages",
+        "usage_cold": "Run one-off 'Cold' encryption",
+        "usage_help": "Show this help message",
+        "usage_version": "Show version information",
+        "version": "CipherLock v{version}",
+        "hot_mode_active": "🚀 CipherLock v{version} - Hot Mode Active",
+        "cold_mode_active": "❄️ CipherLock v{version} - Cold Mode Initialized",
+        "selection": "Selection: ",
+        "path": "Path: ",
+        "password": "Password: ",
+        "totp": "TOTP: ",
+        "invalid_totp": "❌ Invalid TOTP",
+        "totp_display": "🔑 TOTP: {code} ({seconds}s)",
+        "invalid_option": "Invalid Option",
+        "hot_mode_menu_options": "[1] Setup | [2] Arm | [3] Disarm | [4] TOTP | [5] Status | [6] Settings | [7] Exit"
+    },
+    "settings": {
+        "menu_title": "⚙️ Settings",
+        "menu_options": "[1] Change Language | [2] List Languages | [3] Back to Main Menu",
+        "enter_lang_code": "Enter language code: ",
+        "lang_changed": "Language changed to: {lang}",
+        "lang_change_failed": "Failed to change language to '{lang}'. File may not exist.",
+        "available_languages": "Available Languages:"
+    },
+    "lang_command": {
+        "current_lang": "Current language: ",
+        "available_langs_title": "Available languages:",
+        "available_langs_prefix": "- ",
+        "lang_changed_from_to": "Language changed from {old_lang_name} to {new_lang_name}",
+        "lang_change_failed": "Failed to change language to '{lang}'. Locale file may not exist.",
+        "falling_back_lang": "Falling back to default language: {lang}"
+    }
+}
