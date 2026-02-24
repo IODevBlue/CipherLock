@@ -35,12 +35,14 @@
         "usage_init": "Initialize a new vault (default: current dir)",
         "usage_boot": "Start interactive 'Hot' mode",
         "usage_lang": "Check language, change it, or list available languages",
+        "usage_profile": "Manage user profiles (create, list, set-active, get-active)",
         "usage_cold": "Run one-off 'Cold' encryption",
         "usage_help": "Show this help message",
         "usage_version": "Show version information",
         "version": "CipherLock v{version}",
         "hot_mode_active": "🚀 CipherLock v{version} - Hot Mode Active",
         "cold_mode_active": "❄️ CipherLock v{version} - Cold Mode Initialized",
+        "cold_mode_prefix": "❄️ ",
         "selection": "Selection: ",
         "path": "Path: ",
         "password": "Password: ",
@@ -48,7 +50,12 @@
         "invalid_totp": "❌ Invalid TOTP",
         "totp_display": "🔑 TOTP: {code} ({seconds}s)",
         "invalid_option": "Invalid Option",
-        "hot_mode_menu_options": "[1] Setup | [2] Arm | [3] Disarm | [4] TOTP | [5] Status | [6] Settings | [7] Exit"
+        "hot_mode_menu_options": "[1] Setup | [2] Arm | [3] Disarm | [4] TOTP | [5] Status | [6] Settings | [7] Exit",
+        "active_profile_display": "       ⚡ Active Profile: {profile_name} ⚡",
+        "usage_profile_create": "Create a new user profile",
+        "usage_profile_list": "List all user profiles",
+        "usage_profile_set_active": "Set an existing user profile as active",
+        "usage_profile_get_active": "Display the currently active user profile"
     },
     "settings": {
         "menu_title": "⚙️ Settings",
@@ -65,5 +72,25 @@
         "lang_changed_from_to": "Language changed from {old_lang_name} to {new_lang_name}",
         "lang_change_failed": "Failed to change language to '{lang}'. Locale file may not exist.",
         "falling_back_lang": "Falling back to default language: {lang}"
+    },
+    "profile": {
+        "error_subcommand_missing": "❌ Error: Profile subcommand missing. Usage: cipherlock profile [create|list|set-active|get-active]",
+        "enter_name": "Enter profile name: ",
+        "enter_description": "Enter profile description: ",
+        "created_and_set_active": "✅ Profile '{name}' created and set as active.",
+        "created_successfully": "✅ Profile '{name}' created successfully.",
+        "available_profiles": "Available Profiles:",
+        "no_profiles_found": "No profiles found. Use 'cipherlock profile create' to make one.",
+        "active": "active",
+        "enter_name_to_set_active": "Enter profile name to set as active: ",
+        "set_active_successfully": "✅ Profile '{name}' set as active.",
+        "no_active_profile": "No active profile set. Use 'cipherlock profile set-active' or 'cipherlock profile create'.",
+        "current_active_profile": "Current active profile: '{name}'",
+        "error_unknown_subcommand": "❌ Error: Unknown profile subcommand: '{subcommand}'",
+        "error_generic": "❌ Profile Error: {error_msg}",
+        "no_active_profile_found_prompt": "No active user profile found.",
+        "prompt_create_or_set": "Please create a new profile ('cipherlock profile create') or set an existing one ('cipherlock profile set-active') to proceed.",
+        "error_no_active_profile_critical": "❌ Critical Error: An active user profile is required for this command.",
+        "warning_profile_info_failed": "Warning: Could not get profile information for welcome display: {error_msg}"
     }
 }

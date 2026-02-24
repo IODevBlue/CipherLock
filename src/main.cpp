@@ -2,14 +2,97 @@
 #include "TOTP.hpp"
 #include "UI.hpp"
 #include "I18n.hpp"
+#include "ProfileManager.hpp" // Include ProfileManager
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <limits> // Required for numeric_limits
 
 // TODO: Extract the raw strings here to the localized jsons
 
 const std::string CIPHERLOCK_VERSION = "1.0.0";
+
+// Forward declaration for UI::print_usage to update it later
+namespace UI {
+    void print_usage();
+}
+
+// Function to handle profile-related commands
+void run_profile_command(int argc, char* argv[]) { // TODO: Test this method (modified by Gemini)
+    if (argc < 3) {
+        std::cerr << I18n::instance().t("profile.error_subcommand_missing") << "\n";
+        UI::print_usage();
+        return;
+    }
+
+    std::string subcommand = argv[2];
+
+    try {
+        cipherLock::ProfileManager::ensureUserProfileBaseDirExists();
+
+        if (subcommand == "create") {
+            std::string profileName;
+            std::string description;
+
+            if (argc > 3) { // Profile name provided directly
+                profileName = argv[3];
+            } else {
+                std::cout << I18n::instance().t("profile.enter_name");
+                std::cin >> profileName;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Consume the leftover newline
+            }
+
+            std::cout << I18n::instance().t("profile.enter_description");
+            std::getline(std::cin, description); // Read description, potentially with spaces
+
+            if (cipherLock::ProfileManager::listProfiles().empty()) {
+                // If this is the first profile, make it active by default
+                cipherLock::UserProfile newProfile = {profileName, description};
+                cipherLock::ProfileManager::saveProfile(newProfile);
+                cipherLock::ProfileManager::setActiveProfile(profileName);
+                std::cout << I18n::instance().t("profile.created_and_set_active", {{"name", profileName}}) << "\n";
+            } else {
+                cipherLock::UserProfile newProfile = {profileName, description};
+                cipherLock::ProfileManager::saveProfile(newProfile);
+                std::cout << I18n::instance().t("profile.created_successfully", {{"name", profileName}}) << "\n";
+            }
+        } else if (subcommand == "list") {
+            std::cout << I18n::instance().t("profile.available_profiles") << "\n";
+            std::vector<std::string> profiles = cipherLock::ProfileManager::listProfiles();
+            std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
+            if (profiles.empty()) {
+                std::cout << I18n::instance().t("profile.no_profiles_found") << "\n";
+            } else {
+                for (const auto& p : profiles) {
+                    std::cout << "- " << p << (p == activeProfileName ? " (" + I18n::instance().t("profile.active") + ")" : "") << "\n";
+                }
+            }
+        } else if (subcommand == "set-active") {
+            std::string profileName;
+            if (argc > 3) {
+                profileName = argv[3];
+            } else {
+                std::cout << I18n::instance().t("profile.enter_name_to_set_active");
+                std::cin >> profileName;
+            }
+            cipherLock::ProfileManager::setActiveProfile(profileName);
+            std::cout << I18n::instance().t("profile.set_active_successfully", {{"name", profileName}}) << "\n";
+        } else if (subcommand == "get-active") {
+            std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
+            if (activeProfileName.empty()) {
+                std::cout << I18n::instance().t("profile.no_active_profile") << "\n";
+            } else {
+                std::cout << I18n::instance().t("profile.current_active_profile", {{"name", activeProfileName}}) << "\n";
+            }
+        } else {
+            std::cerr << I18n::instance().t("profile.error_unknown_subcommand", {{"subcommand", subcommand}}) << "\n";
+            UI::print_usage();
+        }
+    } catch (const std::runtime_error& e) {
+        std::cerr << I18n::instance().t("profile.error_generic", {{"error_msg", e.what()}}) << "\n";
+    }
+}
 
 void display_version() { // TODO: Test this method (modified by Gemini)
     std::cout << I18n::instance().t("ui.version", {{"version", CIPHERLOCK_VERSION}}) << std::endl;
@@ -40,14 +123,14 @@ void run_settings_menu() {
                     std::cout << I18n::instance().t("settings.lang_changed", {{"lang", I18n::instance().getLanguageName()}}) << std::endl;
                 } else {
                     I18n::instance().load(old_locale, "../locales"); // Revert on failure
-                    std::cout << I18n::instance().t("settings.lang_change_failed", {{"lang", lang_code}}) << std::endl;
+                    std::cout << I18n::instance().t("settings.lang_change_failed", {{"lang", lang_code}}) << "\n";
                 }
                 break;
             }
             case 2: { // List Languages
-                std::cout << I18n::instance().t("settings.available_languages") << std::endl;
+                std::cout << I18n::instance().t("settings.available_languages") << "\n";
                 for (const auto& lang : I18n::instance().getAvailableLanguages("../locales")) {
-                    std::cout << "- " << lang << std::endl;
+                    std::cout << "- " << lang << "\n";
                 }
                 break;
             }
@@ -126,7 +209,7 @@ void run_hot_mode() { // TODO: Test this method (modified by Gemini)
 }
 
 void run_cold_mode(const std::string& src, const std::string& key_file, const std::string& dest) { // TODO: Test this method (modified by Gemini)
-    std::cout << "❄️ " << I18n::instance().t("ui.cold_mode_active", {{"version", CIPHERLOCK_VERSION}}) << "\n";
+    std::cout << I18n::instance().t("ui.cold_mode_prefix") << I18n::instance().t("ui.cold_mode_active", {{"version", CIPHERLOCK_VERSION}}) << "\n";
     
     std::ifstream kf(key_file);
     if (!kf) {
@@ -147,14 +230,10 @@ int main(int argc, char* argv[]) {
     // Initialize localization
     I18n::instance().load("en", "../locales");
 
-    if (argc < 2) {
-        UI::print_welcome(CIPHERLOCK_VERSION, I18n::instance().getLanguageName());
-        UI::print_usage();
-        return 0;
-    }
+    std::string arg1 = (argc > 1) ? argv[1] : "";
 
-    std::string arg1 = argv[1];
-
+    // 1. Handle basic informational commands that don't require a profile
+    // These commands print usage/version/lang info and then exit.
     if (arg1 == "--help" || arg1 == "-h") {
         UI::print_usage();
         return 0;
@@ -164,12 +243,7 @@ int main(int argc, char* argv[]) {
         display_version();
         return 0;
     }
-
-    if (arg1 == "boot") {
-        run_hot_mode();
-        return 0;
-    }
-
+    
     if (arg1 == "lang") {
         if (argc == 2) {
             std::cout << I18n::instance().t("lang_command.current_lang") << I18n::instance().getLanguageName() << std::endl;
@@ -193,6 +267,53 @@ int main(int argc, char* argv[]) {
                 }
             }
         }
+        return 0;
+    }
+
+    if (arg1 == "profile") { // Profile commands should always work without requiring an active profile
+        run_profile_command(argc, argv);
+        return 0;
+    }
+
+    // 2. Determine active profile for welcome message and subsequent checks
+    std::string activeProfileName;
+    try {
+        cipherLock::ProfileManager::ensureUserProfileBaseDirExists();
+        activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
+    } catch (const std::runtime_error& e) {
+        // Log error but don't prevent welcome display. This might happen if ~/.cipherlock is unreadable.
+        std::cerr << I18n::instance().t("profile.warning_profile_info_failed", {{"error_msg", e.what()}}) << "\n";
+    }
+
+    // Display welcome UI for general invocation or unrecognized commands
+    // Pass activeProfileName to UI::print_welcome
+    UI::print_welcome(CIPHERLOCK_VERSION, I18n::instance().getLanguageName(), activeProfileName);
+
+    // If no command is given (bare cipherlock call) or an unrecognized command is provided
+    if (arg1.empty() || (arg1 != "boot" && arg1 != "init" && arg1 != "arm" && arg1 != "disarm" && arg1 != "profile" && arg1 != "lang" && arg1 != "--help" && arg1 != "-h" && arg1 != "--version" && arg1 != "-v")) {
+        if (activeProfileName.empty()) {
+            std::cout << I18n::instance().t("profile.no_active_profile_found_prompt") << "\n";
+            std::cout << I18n::instance().t("profile.prompt_create_or_set") << "\n";
+        }
+        if (arg1.empty()) { // Only show usage for bare cipherlock call
+            UI::print_usage();
+        } else { // For unrecognized command, show error and usage
+            std::cerr << I18n::instance().t("common.error_unrecognized_command", {{"cmd", arg1}}) << "\n";
+            UI::print_usage();
+        }
+        return (arg1.empty() ? 0 : 1); // Exit with success for bare call, error for unrecognized command
+    }
+
+    // 3. Enforce active profile for commands that NEED it
+    if (activeProfileName.empty()) {
+        std::cerr << I18n::instance().t("profile.error_no_active_profile_critical") << "\n";
+        std::cerr << I18n::instance().t("profile.prompt_create_or_set") << "\n";
+        return 1; // Critical error, exit
+    }
+
+    // 4. Execute commands that require an active profile
+    if (arg1 == "boot") {
+        run_hot_mode();
         return 0;
     }
 
@@ -252,6 +373,8 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
+    // This block should ideally not be reached if all commands are correctly handled.
+    // It acts as a final catch-all for any missed command handling, but should be rare.
     std::cerr << I18n::instance().t("common.error_unrecognized_command", {{"cmd", arg1}}) << "\n";
     UI::print_usage();
     return 1;

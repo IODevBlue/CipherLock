@@ -35,12 +35,14 @@
         "usage_init": "Initialiser un nouveau coffre-fort (défaut : répertoire actuel)",
         "usage_boot": "Démarrer le mode interactif 'Hot'",
         "usage_lang": "Vérifier la langue, la changer ou lister les langues disponibles",
+        "usage_profile": "Gérer les profils utilisateur (créer, lister, définir actif, obtenir actif)",
         "usage_cold": "Exécuter un chiffrement unique 'Cold'",
         "usage_help": "Afficher ce message d'aide",
         "usage_version": "Afficher les informations de version",
         "version": "CipherLock v{version}",
         "hot_mode_active": "🚀 CipherLock v{version} - Mode 'Hot' Actif",
         "cold_mode_active": "❄️ CipherLock v{version} - Mode 'Cold' Initialisé",
+        "cold_mode_prefix": "❄️ ",
         "selection": "Sélection : ",
         "path": "Chemin : ",
         "password": "Mot de passe : ",
@@ -48,7 +50,12 @@
         "invalid_totp": "❌ TOTP invalide",
         "totp_display": "🔑 TOTP : {code} ({seconds}s)",
         "invalid_option": "Option invalide",
-        "hot_mode_menu_options": "[1] Configurer | [2] Armer | [3] Désarmer | [4] TOTP | [5] État | [6] Paramètres | [7] Quitter"
+        "hot_mode_menu_options": "[1] Configurer | [2] Armer | [3] Désarmer | [4] TOTP | [5] État | [6] Paramètres | [7] Quitter",
+        "active_profile_display": "       ⚡ Profil Actif : {profile_name} ⚡",
+        "usage_profile_create": "Créer un nouveau profil utilisateur",
+        "usage_profile_list": "Lister tous les profils utilisateur",
+        "usage_profile_set_active": "Définir un profil utilisateur existant comme actif",
+        "usage_profile_get_active": "Afficher le profil utilisateur actif"
     },
     "settings": {
         "menu_title": "⚙️ Paramètres",
@@ -65,5 +72,25 @@
         "lang_changed_from_to": "Langue changée de {old_lang_name} à {new_lang_name}",
         "lang_change_failed": "Échec du changement de langue vers '{lang}'. Le fichier de locale peut ne pas exister.",
         "falling_back_lang": "Retour à la langue par défaut : {lang}"
+    },
+    "profile": {
+        "error_subcommand_missing": "❌ Erreur : Sous-commande de profil manquante. Utilisation : cipherlock profile [create|list|set-active|get-active]",
+        "enter_name": "Entrez le nom du profil : ",
+        "enter_description": "Entrez la description du profil : ",
+        "created_and_set_active": "✅ Profil '{name}' créé et défini comme actif.",
+        "created_successfully": "✅ Profil '{name}' créé avec succès.",
+        "available_profiles": "Profils disponibles :",
+        "no_profiles_found": "Aucun profil trouvé. Utilisez 'cipherlock profile create' pour en créer un.",
+        "active": "actif",
+        "enter_name_to_set_active": "Entrez le nom du profil à définir comme actif : ",
+        "set_active_successfully": "✅ Profil '{name}' défini comme actif.",
+        "no_active_profile": "Aucun profil actif défini. Utilisez 'cipherlock profile set-active' ou 'cipherlock profile create'.",
+        "current_active_profile": "Profil actif actuel : '{name}'",
+        "error_unknown_subcommand": "❌ Erreur : Sous-commande de profil inconnue : '{subcommand}'",
+        "error_generic": "❌ Erreur de profil : {error_msg}",
+        "no_active_profile_found_prompt": "Aucun profil utilisateur actif trouvé.",
+        "prompt_create_or_set": "Veuillez créer un nouveau profil ('cipherlock profile create') ou en définir un existant ('cipherlock profile set-active') pour continuer.",
+        "error_no_active_profile_critical": "❌ Erreur critique : Un profil utilisateur actif est requis pour cette commande.",
+        "warning_profile_info_failed": "Attention : Impossible d'obtenir les informations de profil pour l'affichage de bienvenue : {error_msg}"
     }
 }
