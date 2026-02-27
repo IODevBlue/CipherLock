@@ -29,7 +29,7 @@ namespace UI {
         std::cout << std::endl;
         std::cout << I18n::instance().t("ui.usage_title") << "\n";
         std::cout << "  \033[1;32mcipherlock init [dir]\033[0m              " << I18n::instance().t("ui.usage_init") << "\n";
-        std::cout << "  \033[1;32mcipherlock boot\033[0m                      " << I18n::instance().t("ui.usage_boot") << "\n";
+        std::cout << "  \033[1;32mcipherlock boot [dir]\033[0m              " << I18n::instance().t("ui.usage_boot") << "\n";
         std::cout << "  \033[1;32mcipherlock lang [code | --list]\033[0m       " << I18n::instance().t("ui.usage_lang") << "\n";
         std::cout << "  \033[1;32mcipherlock profile <subcommand> [args]\033[0m " << I18n::instance().t("ui.usage_profile") << "\n";
         std::cout << "    \033[1;34mcreate [name]\033[0m                  " << I18n::instance().t("ui.usage_profile_create") << "\n";

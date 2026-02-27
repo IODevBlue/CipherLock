@@ -144,10 +144,24 @@ void run_settings_menu() {
     }
 }
 
-void run_hot_mode() { // TODO: Test this method (modified by Gemini)
+void run_hot_mode(const std::string& start_dir = ".") { // TODO: Test this method (modified by Gemini)
     Vault vault;
     // TODO: Change the super secret key to something else and then include it in the config.json
-    TOTP totp("Sup3rS3cr3tK3y!"); // Default for now
+    std::string secret = "Sup3rS3cr3tK3y!";
+    bool is_base32 = false;
+
+    if (vault.load(start_dir)) {
+        std::string vault_secret = vault.get_totp_secret();
+        if (!vault_secret.empty()) {
+            secret = vault_secret;
+            is_base32 = true;
+        }
+        std::cout << "\033[1;32m" << I18n::instance().t("vault.vault_loaded", {{"path", start_dir}}) << "\033[0m" << std::endl;
+    } else {
+        std::cout << "\033[1;33m" << I18n::instance().t("vault.no_vault_at_path", {{"path", start_dir}}) << "\033[0m" << std::endl;
+    }
+
+    TOTP totp(secret, is_base32);
     
     bool running = true;
     while(running) {
@@ -313,7 +327,8 @@ int main(int argc, char* argv[]) {
 
     // 4. Execute commands that require an active profile
     if (arg1 == "boot") {
-        run_hot_mode();
+        std::string target_dir = (argc >= 3) ? argv[2] : ".";
+        run_hot_mode(target_dir);
         return 0;
     }
 

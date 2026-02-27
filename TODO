@@ -2,12 +2,16 @@ CipherIgnore Templates:
      [ ] This is the same as .gitinore templates. Get as many as possible for multiple languages and frameworks. This will be used to ignore files that are not relevant to the project, such as build artifacts, logs, and temporary files.
      [ ] Create a .cipherignore file that can be used to specify patterns for files and directories to ignore when performing operations like encryption and decryption. This will help keep the project organized and prevent unnecessary files from being processed. 
 
+CLI Commands:
+     [ ] Verify if this command is useful or remove: cipherlock <src> <key_file> <dest>   Run one-off 'Cold' encryption.
+     [ ] Verify if the directory provided in the boot command is a valid location else display an error. 
+
 Enhancements for TOTP:  
      [ ] Allowing users to specify the length of the TOTP code (default: 6 digits)
      [ ] Allow setting the timezone for TOTP generation and verification
      [ ] Setting the duration of the TOTP code (default: 30 seconds)
      [ ] Allowing users to specify the hashing algorithm (default: SHA-1)
-     [ ] Providing an option to generate a QR code for easy setup with authenticator apps
+     [ ] Providing an option to gen`erate a QR code for easy setup with authenticator apps
      [ ] Implementing a feature to verify TOTP codes against the current time
      [ ] Adding support for multiple TOTP accounts and managing them within the tool
      [ ] Base32 Decoding: Your manual decoder is a bit fragile (it doesn't handle padding = or ignore spaces). Since you're already using OpenSSL, consider standardizing this.
@@ -15,9 +19,18 @@ Enhancements for TOTP:
 Localization:
      [ ] Implementing localization support to allow users to use the tool in their preferred language. This could involve creating a system for managing translations and allowing users to switch between languages easily.
      [ ] French translations need help. It is AI generated.
+     [ ] Check the vault_loaded and no_vault_at_path translations. They are only in the english translation file and not in use in the project. Go figure.
 
 User profiles:
      [ ] Implementing user profiles to allow multiple users to have their own settings and preferences within the tool. This could include things like preferred encryption algorithms, default file paths, and other customizable options.
 
 Vault:
      [ ] PBKDF2 Iterations: You are using 10,000 iterations. In 2026, this is considered low for high-security applications. Recommendation: Increase this to at least 600,000 iterations or switch to Argon2id.
+
+
+
+
+
+
+
+
