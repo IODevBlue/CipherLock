@@ -39,6 +39,36 @@ TOTP::~TOTP() { // TODO: Test this method (Gemini)
     zeroize_secret();
 }
 
+void TOTP::update_secret(const std::string& secret, bool is_base32) { // TODO: Test this method (Gemini)
+    zeroize_secret();
+    secret_key.clear();
+    
+    if (secret.empty()) {
+        secret_key.resize(20);
+        RAND_bytes(secret_key.data(), 20);
+    } else if (is_base32) {
+        // Simple Base32 decoding
+        int buffer = 0, bits_left = 0;
+        for (char c : secret) {
+            int val = -1;
+            if (c >= 'A' && c <= 'Z') val = c - 'A';
+            else if (c >= 'a' && c <= 'z') val = c - 'a';
+            else if (c >= '2' && c <= '7') val = c - '2' + 26;
+            
+            if (val >= 0) {
+                buffer = (buffer << 5) | val;
+                bits_left += 5;
+                if (bits_left >= 8) {
+                    bits_left -= 8;
+                    secret_key.push_back((unsigned char)((buffer >> bits_left) & 0xFF));
+                }
+            }
+        }
+    } else {
+        secret_key.assign(secret.begin(), secret.end());
+    }
+}
+
 void TOTP::zeroize_secret() { // TODO: Test this method (Gemini)
     // TODO: Consider using OPENSSL_cleanse(secret_key.data(), secret_key.size()) for guaranteed memory wiping.
     std::fill(secret_key.begin(), secret_key.end(), 0);

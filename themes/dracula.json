@@ -1,0 +1,12 @@
+{
+  "name": "Dracula (Vampire)",
+  "colors": {
+    "primary": "\u001b[1;35m",
+    "secondary": "\u001b[1;34m",
+    "success": "\u001b[1;32m",
+    "error": "\u001b[1;31m",
+    "info": "\u001b[1;35m",
+    "accent": "\u001b[1;34m",
+    "prompt": "\u001b[1;34m"
+  }
+}

@@ -5,6 +5,9 @@ CipherIgnore Templates:
 CLI Commands:
      [ ] Verify if this command is useful or remove: cipherlock <src> <key_file> <dest>   Run one-off 'Cold' encryption.
      [ ] Verify if the directory provided in the boot command is a valid location else display an error. 
+     [ ] Remove the `setup` command as it is not needed. The `boot` command can handle both interactive and one-off encryption modes.
+     [ ] Recheck the cold mode. It might be redundant if the boot command can handle one-off encryption. If it is redundant, remove the cold mode to simplify the CLI and reduce confusion for users.
+     [ ] The decrypt and share functions are available. Include them as commands in the cli.
 
 Enhancements for TOTP:  
      [ ] Allowing users to specify the length of the TOTP code (default: 6 digits)
@@ -16,13 +19,22 @@ Enhancements for TOTP:
      [ ] Adding support for multiple TOTP accounts and managing them within the tool
      [ ] Base32 Decoding: Your manual decoder is a bit fragile (it doesn't handle padding = or ignore spaces). Since you're already using OpenSSL, consider standardizing this.
 
+Generated Files:
+     [ ] Implementing a feature to automatically generate files with specific content or structure based on user input. This could be useful for creating configuration files, templates, or other types of files that are commonly used in development projects.
+
 Localization:
      [ ] Implementing localization support to allow users to use the tool in their preferred language. This could involve creating a system for managing translations and allowing users to switch between languages easily.
      [ ] French translations need help. It is AI generated.
      [ ] Check the vault_loaded and no_vault_at_path translations. They are only in the english translation file and not in use in the project. Go figure.
 
+Themes:
+     [ ] Implementing a theming system to allow users to customize the appearance of the tool. This could include options for different color schemes, font styles, and other visual elements to enhance the user experience.
+     [ ] Consider localizing the name of themes.
+
 User profiles:
      [ ] Implementing user profiles to allow multiple users to have their own settings and preferences within the tool. This could include things like preferred encryption algorithms, default file paths, and other customizable options.
+     [ ] Should user profiles be encrypted? If so, we need to decide on a secure method for storing and retrieving user profile information.
+     [ ] User profiles should be stored in a secure location, such as an encrypted file or a secure database, to protect sensitive information. Consider implementing encryption for user profiles to enhance security.
 
 Vault:
      [ ] PBKDF2 Iterations: You are using 10,000 iterations. In 2026, this is considered low for high-security applications. Recommendation: Increase this to at least 600,000 iterations or switch to Argon2id.

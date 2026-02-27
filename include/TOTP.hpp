@@ -19,6 +19,13 @@ public:
     TOTP& operator=(const TOTP&) = delete;
 
     /**
+     * @brief Updates the secret key used for TOTP generation.
+     * @param new_secret The new secret string.
+     * @param is_base32 Whether the new secret is base32 encoded.
+     */
+    void update_secret(const std::string& new_secret, bool is_base32 = false); // TODO: Test this method (Gemini)
+
+    /**
      * @brief Generates the current 6-digit TOTP code.
      * @return std::string The 6-digit code.
      */

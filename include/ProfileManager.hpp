@@ -21,16 +21,18 @@ namespace fs = std::filesystem;
 struct UserProfile {
     std::string name;
     std::string description;
+    std::string theme; // Default theme name
 };
 
 // Define how to convert UserProfile to and from nlohmann::json
 inline void to_json(nlohmann::json& j, const UserProfile& p) { // TODO: Test this method (Gemini)
-    j = nlohmann::json{{"name", p.name}, {"description", p.description}};
+    j = nlohmann::json{{"name", p.name}, {"description", p.description}, {"theme", p.theme}};
 }
 
 inline void from_json(const nlohmann::json& j, UserProfile& p) { // TODO: Test this method (Gemini)
     j.at("name").get_to(p.name);
     j.at("description").get_to(p.description);
+    p.theme = j.value("theme", "default");
 }
 
 /**

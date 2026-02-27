@@ -113,16 +113,16 @@ void ProfileManager::saveProfile(const UserProfile& profile) { // TODO: Test thi
 
 std::vector<std::string> ProfileManager::listProfiles() { // TODO: Test this method (Gemini)
     std::vector<std::string> profiles;
-    fs::path baseDir = getUserProfileBaseDir();
+    fs::path baseDir = getUserProfileBaseDir() / "profiles";
     
     if (!fs::exists(baseDir) || !fs::is_directory(baseDir)) {
         return profiles; // No profiles if directory doesn't exist or isn't a directory
     }
 
     for (const auto& entry : fs::directory_iterator(baseDir)) {
-        if (entry.is_regular_file() && entry.path().extension() == ".json") {
-            std::string filename = entry.path().stem().string();
-            profiles.push_back(filename);
+        if (entry.is_directory()) {
+            std::string name = entry.path().filename().string();
+            profiles.push_back(name);
         }
     }
     return profiles;
