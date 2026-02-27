@@ -9,7 +9,12 @@ CLI Commands:
      [ ] Recheck the cold mode. It might be redundant if the boot command can handle one-off encryption. If it is redundant, remove the cold mode to simplify the CLI and reduce confusion for users.
      [ ] The decrypt and share functions are available. Include them as commands in the cli.
 
+Documentation:
+     [ ] Create a comprehensive user guide that covers all features of the tool, including how to use the CLI commands, manage user profiles, and customize themes. This guide should be easy to understand and include examples to help users get started quickly.
+     [ ] Create a troubleshooting section in the documentation to help users resolve common issues they may encounter while using the tool. This could include solutions for common error messages, tips for optimizing performance, and guidance on how to securely manage encryption keys.
+
 Enhancements for TOTP:  
+     [ ] Remove TOTP. Redundant feature
      [ ] Allowing users to specify the length of the TOTP code (default: 6 digits)
      [ ] Allow setting the timezone for TOTP generation and verification
      [ ] Setting the duration of the TOTP code (default: 30 seconds)
