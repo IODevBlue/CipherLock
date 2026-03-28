@@ -1,3 +1,6 @@
+Cleanups:
+     [ ] Make sure there is nothing left for TOTP.
+
 CipherIgnore Templates:
      [ ] This is the same as .gitinore templates. Get as many as possible for multiple languages and frameworks. This will be used to ignore files that are not relevant to the project, such as build artifacts, logs, and temporary files.
      [ ] Create a .cipherignore file that can be used to specify patterns for files and directories to ignore when performing operations like encryption and decryption. This will help keep the project organized and prevent unnecessary files from being processed. 
@@ -8,22 +11,35 @@ CLI Commands:
      [ ] Remove the `setup` command as it is not needed. The `boot` command can handle both interactive and one-off encryption modes.
      [ ] Recheck the cold mode. It might be redundant if the boot command can handle one-off encryption. If it is redundant, remove the cold mode to simplify the CLI and reduce confusion for users.
      [ ] The decrypt and share functions are available. Include them as commands in the cli.
+     [ ] Add command in hot mode, maybe in settings to edit current profile and to switch, create profiles. Even delete.
+     [ ] In cipherlock status, the print out should be labeled properly. Project description should be after project name.
+     [ ] Reverify the project backup key feature
 
 Documentation:
      [ ] Create a comprehensive user guide that covers all features of the tool, including how to use the CLI commands, manage user profiles, and customize themes. This guide should be easy to understand and include examples to help users get started quickly.
      [ ] Create a troubleshooting section in the documentation to help users resolve common issues they may encounter while using the tool. This could include solutions for common error messages, tips for optimizing performance, and guidance on how to securely manage encryption keys.
 
-Enhancements for TOTP:  
-     [ ] Remove TOTP. Redundant feature
-     [ ] Allowing users to specify the length of the TOTP code (default: 6 digits)
-     [ ] Allow setting the timezone for TOTP generation and verification
-     [ ] Setting the duration of the TOTP code (default: 30 seconds)
-     [ ] Allowing users to specify the hashing algorithm (default: SHA-1)
-     [ ] Providing an option to gen`erate a QR code for easy setup with authenticator apps
-     [ ] Implementing a feature to verify TOTP codes against the current time
-     [ ] Adding support for multiple TOTP accounts and managing them within the tool
-     [ ] Base32 Decoding: Your manual decoder is a bit fragile (it doesn't handle padding = or ignore spaces). Since you're already using OpenSSL, consider standardizing this.
+Feature - Encryption:
+     [ ] Allow users rename and relocate the primary key file. This would provide more flexibility in how users manage their encryption keys and could enhance security by allowing them to store the key file in a more secure location or under a different name to make it less obvious.
+     [ ] Implementing support for multiple encryption algorithms, allowing users to choose the one that best suits their needs. 
+     [ ] Test this claim: Self-Healing Recovery: If the local master.clkey is deleted, CipherLock will automatically attempt to restore it from the profile backup during the boot process.
+     [ ] Improve or remove the encryptor animation.
+     [ ] Implementing a feature to allow users to specify a custom header for their encrypted files. This header could include metadata about the encryption, such as the algorithm used, the date of encryption, or other relevant information. This would help users keep track of their encrypted files and provide additional context when working with them.  
 
+Feature: Encrypted File Header:
+     [ ] Let users be able to provide the custom location of their header file, the default would be in the .cipherlock folder.
+
+Feature - Project management:
+     [ ] Should there be a feature where project metadata history is stored and can be accessed? This would allow users to track changes to project information over time and could be useful for auditing purposes or for understanding the evolution of a project.
+
+Feature - Project programming language detection:
+     [ ] Implementing a feature to automatically detect the programming language of a project based on its file structure and contents. This could be useful for providing language-specific features, such as syntax highlighting, code snippets, or language-specific templates.
+     [ ] Detect text files, pdfs, word documents etc
+
+Feature - User Profiles:
+     [ ] Allow feature to check the total number of backed up keys for projects a profile has.
+     [ ] Add feature to edit profile when in a hot mode for a project.
+     
 Generated Files:
      [ ] Implementing a feature to automatically generate files with specific content or structure based on user input. This could be useful for creating configuration files, templates, or other types of files that are commonly used in development projects.
 

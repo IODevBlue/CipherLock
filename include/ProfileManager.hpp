@@ -115,6 +115,22 @@ public:
      */
     static UserProfile getActiveProfile();
 
+    /**
+     * @brief Backs up a project's master key to the profile directory.
+     * @param profileName The name of the profile.
+     * @param projectUuid The unique ID of the project.
+     * @param keyJson The JSON content of the master key file.
+     */
+    static void backupProjectKey(const std::string& profileName, const std::string& projectUuid, const std::string& keyJson);
+
+    /**
+     * @brief Retrieves a backed-up project master key from the profile directory.
+     * @param profileName The name of the profile.
+     * @param projectUuid The unique ID of the project.
+     * @return The JSON content of the backed-up key, or empty if not found.
+     */
+    static std::string getProjectKeyBackup(const std::string& profileName, const std::string& projectUuid);
+
 private:
     /**
      * @brief Returns the full path to a profile file given its name.

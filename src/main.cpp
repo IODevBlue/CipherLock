@@ -1,5 +1,4 @@
 #include "Vault.hpp"
-#include "TOTP.hpp"
 #include "UI.hpp"
 #include "I18n.hpp"
 #include "ProfileManager.hpp" // Include ProfileManager
@@ -96,7 +95,7 @@ void run_profile_command(int argc, char* argv[]) { // TODO: Test this method (mo
 }
 
 void display_version() { // TODO: Test this method (modified by Gemini)
-    std::cout << I18n::instance().t("ui.version", {{"version", CIPHERLOCK_VERSION}}) << std::endl;
+    std::cout << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("ui.version", {{"version", CIPHERLOCK_VERSION}}) << Theme::instance().color(Theme::RESET) << std::endl;
 }
 
 void run_settings_menu() {
@@ -174,25 +173,81 @@ void run_settings_menu() {
     }
 }
 
-void run_hot_mode(const std::string& start_dir = ".") { // TODO: Test this method (modified by Gemini)
+void run_milestone_menu(Vault& vault) { // TODO: Test this method (Gemini)
+    bool running = true;
+    while(running) {
+        std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << "--- " << I18n::instance().t("project.milestone_menu_title") << " ---" << Theme::instance().color(Theme::RESET) << "\n";
+        std::cout << Theme::instance().color(Theme::INFO) << I18n::instance().t("project.milestone_menu_options") << Theme::instance().color(Theme::RESET) << "\n";
+        std::cout << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("ui.selection") << Theme::instance().color(Theme::RESET);
+
+        int choice;
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(1000, '\n');
+            continue;
+        }
+
+        switch (choice) {
+            case 1: // List
+                vault.list_milestones();
+                break;
+            case 2: { // Create
+                std::cout << I18n::instance().t("project.enter_milestone_name");
+                std::string name;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::getline(std::cin, name);
+                if (name.empty() || name == "q" || name == "Q") break;
+
+                std::cout << I18n::instance().t("project.enter_milestone_valuation");
+                std::string val_str;
+                std::getline(std::cin, val_str);
+                double valuation = 0.0;
+                if (!val_str.empty() && val_str != "q" && val_str != "Q") {
+                    try {
+                        valuation = std::stod(val_str);
+                    } catch (...) {}
+                }
+                
+                // Get project currency
+                std::string currency = vault.get_currency();
+                if (currency.empty()) currency = "USD";
+
+                vault.create_milestone(name, valuation, currency);
+                break;
+            }
+            case 3: { // Edit
+                std::cout << I18n::instance().t("project.enter_milestone_id");
+                std::string m_id;
+                std::cin >> m_id;
+                vault.edit_milestone(m_id);
+                break;
+            }
+            case 4: { // Release
+                std::cout << I18n::instance().t("project.enter_milestone_id");
+                std::string m_id;
+                std::cin >> m_id;
+                vault.release_milestone(m_id);
+                break;
+            }
+            case 5: // Back
+                running = false;
+                break;
+            default:
+                std::cout << I18n::instance().t("ui.invalid_option") << "\n";
+        }
+    }
+}
+
+void run_hot_mode(const std::string& start_dir = ".", const std::string& active_profile = "") { // TODO: Test this method (modified by Gemini)
     Vault vault;
-    // TODO: Change the super secret key to something else and then include it in the config.json
-    std::string secret = "Sup3rS3cr3tK3y!";
-    bool is_base32 = false;
 
     if (vault.load(start_dir)) {
-        std::string vault_secret = vault.get_totp_secret();
-        if (!vault_secret.empty()) {
-            secret = vault_secret;
-            is_base32 = true;
-        }
         std::cout << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("vault.vault_loaded", {{"path", start_dir}}) << Theme::instance().color(Theme::RESET) << std::endl;
     } else {
         std::cout << Theme::instance().color(Theme::SECONDARY) << I18n::instance().t("vault.no_vault_at_path", {{"path", start_dir}}) << Theme::instance().color(Theme::RESET) << std::endl;
+        vault.setup(start_dir, active_profile);
     }
 
-    TOTP totp(secret, is_base32);
-    
     bool running = true;
     while(running) {
         bool initialized = vault.is_initialized();
@@ -226,11 +281,7 @@ void run_hot_mode(const std::string& start_dir = ".") { // TODO: Test this metho
 
                     if (fs::exists(dir)) {
                         if (!vault.load(dir)) {
-                            vault.setup(dir);
-                        }
-                        std::string vault_secret = vault.get_totp_secret();
-                        if (!vault_secret.empty()) {
-                            totp.update_secret(vault_secret, true);
+                            vault.setup(dir, active_profile);
                         }
                     } else {
                         std::cout << I18n::instance().t("ui.folder_not_found", {{"path", dir}}) << "\n";
@@ -238,53 +289,35 @@ void run_hot_mode(const std::string& start_dir = ".") { // TODO: Test this metho
                         std::string answer;
                         std::cin >> answer;
                         if (answer == "y" || answer == "Y" || answer == "o" || answer == "O") {
-                            vault.setup(dir);
-                            std::string vault_secret = vault.get_totp_secret();
-                            if (!vault_secret.empty()) {
-                                totp.update_secret(vault_secret, true);
-                            }
+                            vault.setup(dir, active_profile);
                         }
                     }
                 } else {
-                    vault.setup(vault.get_root());
-                    std::string vault_secret = vault.get_totp_secret();
-                    if (!vault_secret.empty()) {
-                        totp.update_secret(vault_secret, true);
-                    }
+                    vault.setup(vault.get_root(), active_profile);
                 }
                 break;
             }
             case 2: {
-                std::cout << I18n::instance().t("ui.password");
-                std::string pwd;
-                std::cin >> pwd;
-                vault.lock_vault(pwd);
+                vault.lock_vault();
                 break;
             }
             case 3: {
-                std::cout << I18n::instance().t("ui.totp");
-                std::string code;
-                std::cin >> code;
-                if (totp.verify(code)) {
-                    std::cout << I18n::instance().t("ui.password");
-                    std::string pwd;
-                    std::cin >> pwd;
-                    vault.unlock_vault(pwd);
-                } else {
-                    std::cout << Theme::instance().color(Theme::ERROR) << I18n::instance().t("ui.invalid_totp") << Theme::instance().color(Theme::RESET) << "\n";
-                }
+                vault.unlock_vault();
                 break;
             }
             case 4:
-                std::cout << I18n::instance().t("ui.totp_display", {{"code", totp.generate_current()}, {"seconds", std::to_string(totp.get_seconds_remaining())}}) << "\n";
-                break;
-            case 5:
                 vault.display_status();
                 break;
+            case 5:
+                vault.edit_project_metadata();
+                break;
             case 6:
-                run_settings_menu();
+                run_milestone_menu(vault);
                 break;
             case 7:
+                run_settings_menu();
+                break;
+            case 8:
                 running = false;
                 break;
             default:
@@ -365,7 +398,7 @@ int main(int argc, char* argv[]) {
     UI::print_welcome(CIPHERLOCK_VERSION, I18n::instance().getLanguageName(), activeProfileName);
 
     // If no command is given (bare cipherlock call) or an unrecognized command is provided
-    if (arg1.empty() || (arg1 != "boot" && arg1 != "share" && arg1 != "unlock-file" && arg1 != "profile" && arg1 != "lang" && arg1 != "--help" && arg1 != "-h" && arg1 != "--version" && arg1 != "-v")) {
+    if (arg1.empty() || (arg1 != "boot" && arg1 != "edit" && arg1 != "share" && arg1 != "unlock-file" && arg1 != "profile" && arg1 != "lang" && arg1 != "--help" && arg1 != "-h" && arg1 != "--version" && arg1 != "-v")) {
         if (activeProfileName.empty()) {
             std::cout << I18n::instance().t("profile.no_active_profile_found_prompt") << "\n";
             std::cout << I18n::instance().t("profile.prompt_create_or_set") << "\n";
@@ -387,9 +420,22 @@ int main(int argc, char* argv[]) {
     }
 
     // 4. Execute commands that require an active profile
+    if (arg1 == "edit") {
+        if (argc >= 3 && std::string(argv[2]) == "--project") {
+            std::string target_dir = (argc >= 4) ? argv[3] : ".";
+            Vault vault;
+            if (vault.load(target_dir)) {
+                vault.edit_project_metadata();
+            } else {
+                std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("vault.error_no_vault", {{"path", target_dir}}) << Theme::instance().color(Theme::RESET) << "\n";
+            }
+            return 0;
+        }
+    }
+
     if (arg1 == "boot") {
         std::string target_dir = (argc >= 3) ? argv[2] : ".";
-        run_hot_mode(target_dir);
+        run_hot_mode(target_dir, activeProfileName);
         return 0;
     }
 
@@ -406,11 +452,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        std::cout << I18n::instance().t("vault.enter_password_share");
-        std::string password;
-        std::cin >> password;
-
-        std::string token = vault.share_file(file_path, password);
+        std::string token = vault.share_file(file_path);
         if (token.empty()) {
             std::cerr << Theme::instance().color(Theme::ERROR) << "Failed to generate token for file: " << file_path << Theme::instance().color(Theme::RESET) << "\n";
             return 1;

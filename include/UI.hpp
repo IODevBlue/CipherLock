@@ -30,6 +30,7 @@ namespace UI {
         std::cout << std::endl;
         std::cout << I18n::instance().t("ui.usage_title") << "\n";
         std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock boot [dir]" << Theme::instance().color(Theme::RESET) << "              " << I18n::instance().t("ui.usage_boot") << "\n";
+        std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock edit --project [dir]" << Theme::instance().color(Theme::RESET) << "     " << I18n::instance().t("ui.usage_edit") << "\n";
         std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock lang [code | --list]" << Theme::instance().color(Theme::RESET) << "       " << I18n::instance().t("ui.usage_lang") << "\n";
         std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock profile <subcommand> [args]" << Theme::instance().color(Theme::RESET) << " " << I18n::instance().t("ui.usage_profile") << "\n";
         std::cout << "    " << Theme::instance().color(Theme::INFO) << "create [name]" << Theme::instance().color(Theme::RESET) << "                  " << I18n::instance().t("ui.usage_profile_create") << "\n";
@@ -38,8 +39,8 @@ namespace UI {
         std::cout << "    " << Theme::instance().color(Theme::INFO) << "get-active" << Theme::instance().color(Theme::RESET) << "                     " << I18n::instance().t("ui.usage_profile_get_active") << "\n";
         std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock share <file> [dir]" << Theme::instance().color(Theme::RESET) << "      " << I18n::instance().t("ui.usage_share") << "\n";
         std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock unlock-file <token> [dir]" << Theme::instance().color(Theme::RESET) << " " << I18n::instance().t("ui.usage_unlock_file") << "\n";
-        std::cout << "  cipherlock --help | -h               " << I18n::instance().t("ui.usage_help") << "\n";
-        std::cout << "  cipherlock --version | -v            " << I18n::instance().t("ui.usage_version") << "\n";
+        std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock --help | -h" << Theme::instance().color(Theme::RESET) << "               " << I18n::instance().t("ui.usage_help") << "\n";
+        std::cout << "  " << Theme::instance().color(Theme::SUCCESS) << "cipherlock --version | -v" << Theme::instance().color(Theme::RESET) << "            " << I18n::instance().t("ui.usage_version") << "\n";
     }
 }
 

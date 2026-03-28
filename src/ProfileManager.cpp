@@ -184,4 +184,27 @@ UserProfile ProfileManager::getActiveProfile() { // TODO: Test this method (Gemi
     return loadProfile(activeProfileName);
 }
 
+void ProfileManager::backupProjectKey(const std::string& profileName, const std::string& projectUuid, const std::string& keyJson) { // TODO: Test this method (Gemini)
+    fs::path backupDir = getUserProfileBaseDir() / "profiles" / profileName / "backups" / "keys";
+    if (!fs::exists(backupDir)) {
+        fs::create_directories(backupDir);
+    }
+    
+    fs::path backupPath = backupDir / (projectUuid + ".clkey");
+    std::ofstream ofs(backupPath);
+    if (ofs) {
+        ofs << keyJson;
+    }
+}
+
+std::string ProfileManager::getProjectKeyBackup(const std::string& profileName, const std::string& projectUuid) { // TODO: Test this method (Gemini)
+    fs::path backupPath = getUserProfileBaseDir() / "profiles" / profileName / "backups" / "keys" / (projectUuid + ".clkey");
+    if (!fs::exists(backupPath)) return "";
+
+    std::ifstream ifs(backupPath);
+    if (!ifs) return "";
+
+    return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+}
+
 } // namespace cipherLock
