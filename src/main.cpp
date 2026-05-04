@@ -98,7 +98,160 @@ void display_version() { // TODO: Test this method (modified by Gemini)
     std::cout << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("ui.version", {{"version", CIPHERLOCK_VERSION}}) << Theme::instance().color(Theme::RESET) << std::endl;
 }
 
-void run_settings_menu() {
+void run_profile_menu() { // TODO: Test this method (Gemini)
+    bool running = true;
+    while(running) {
+        std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << "--- " << I18n::instance().t("profile.menu_title") << " ---" << Theme::instance().color(Theme::RESET) << "\n";
+        std::cout << Theme::instance().color(Theme::INFO) << I18n::instance().t("profile.menu_options") << Theme::instance().color(Theme::RESET) << "\n";
+        std::cout << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("ui.selection") << Theme::instance().color(Theme::RESET);
+
+        int choice;
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(1000, '\n');
+            continue;
+        }
+
+        switch (choice) {
+            case 1: { // List
+                std::cout << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("profile.available_profiles") << Theme::instance().color(Theme::RESET) << "\n";
+                std::vector<std::string> profiles = cipherLock::ProfileManager::listProfiles();
+                std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
+                if (profiles.empty()) {
+                    std::cout << I18n::instance().t("profile.no_profiles_found") << "\n";
+                } else {
+                    for (const auto& p : profiles) {
+                        std::cout << "- " << p << (p == activeProfileName ? " (" + I18n::instance().t("profile.active") + ")" : "") << "\n";
+                    }
+                }
+                break;
+            }
+            case 2: { // Create
+                std::string profileName;
+                std::string fullName;
+                std::string description;
+                std::vector<cipherLock::UserProfile::Contact> contacts;
+
+                std::cout << I18n::instance().t("profile.enter_name");
+                std::cin >> profileName;
+                if (profileName == "q" || profileName == "Q") break;
+                
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                
+                std::cout << I18n::instance().t("profile.enter_full_name");
+                std::getline(std::cin, fullName);
+                if (fullName == "q" || fullName == "Q") fullName = "";
+
+                std::cout << I18n::instance().t("profile.enter_description");
+                std::getline(std::cin, description);
+                if (description == "q" || description == "Q") description = "";
+
+                // Contacts
+                std::cout << I18n::instance().t("profile.add_contacts_hint") << "\n";
+                while (true) {
+                    std::cout << I18n::instance().t("profile.contact_title_prompt");
+                    std::string title;
+                    std::getline(std::cin, title);
+                    if (title.empty() || title == "q" || title == "Q") break;
+
+                    std::cout << I18n::instance().t("profile.contact_link_prompt");
+                    std::string link;
+                    std::getline(std::cin, link);
+                    if (link == "q" || link == "Q") continue;
+
+                    contacts.push_back({title, link});
+                }
+
+                cipherLock::UserProfile newProfile = {profileName, fullName, contacts, description, "default"};
+                cipherLock::ProfileManager::saveProfile(newProfile);
+                
+                if (cipherLock::ProfileManager::listProfiles().size() == 1) {
+                    // If this was the first profile, make it active
+                    cipherLock::ProfileManager::setActiveProfile(profileName);
+                    std::cout << I18n::instance().t("profile.created_and_set_active", {{"name", profileName}}) << "\n";
+                } else {
+                    std::cout << I18n::instance().t("profile.created_successfully", {{"name", profileName}}) << "\n";
+                }
+                break;
+            }
+            case 3: { // Edit Active
+                try {
+                    auto profile = cipherLock::ProfileManager::getActiveProfile();
+                    std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("profile.edit_active_profile_title", {{"name", profile.name}}) << Theme::instance().color(Theme::RESET) << "\n";
+                    
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                    
+                    std::cout << I18n::instance().t("profile.enter_new_full_name", {{"current", profile.full_name}});
+                    std::string full_name;
+                    std::getline(std::cin, full_name);
+                    if (!full_name.empty() && full_name != "q" && full_name != "Q") {
+                        profile.full_name = full_name;
+                    }
+
+                    std::cout << I18n::instance().t("profile.enter_new_description", {{"current", profile.description}});
+                    std::string desc;
+                    std::getline(std::cin, desc);
+                    if (!desc.empty() && desc != "q" && desc != "Q") {
+                        profile.description = desc;
+                    }
+
+                    // Contacts Edit (Simple approach: append new ones or clear and re-add?)
+                    // For now, let's offer to add more or clear.
+                    std::cout << I18n::instance().t("profile.add_contacts_hint") << " (current count: " << profile.contacts.size() << ")\n";
+                    while (true) {
+                        std::cout << I18n::instance().t("profile.contact_title_prompt");
+                        std::string title;
+                        std::getline(std::cin, title);
+                        if (title.empty() || title == "q" || title == "Q") break;
+
+                        std::cout << I18n::instance().t("profile.contact_link_prompt");
+                        std::string link;
+                        std::getline(std::cin, link);
+                        if (link == "q" || link == "Q") continue;
+
+                        profile.contacts.push_back({title, link});
+                    }
+
+                    cipherLock::ProfileManager::saveProfile(profile);
+                    std::cout << I18n::instance().t("profile.profile_updated_successfully", {{"name", profile.name}}) << "\n";
+                } catch (const std::exception& e) {
+                    std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_generic", {{"error_msg", e.what()}}) << Theme::instance().color(Theme::RESET) << "\n";
+                }
+                break;
+            }
+            case 4: { // Switch
+                std::string profileName;
+                std::cout << I18n::instance().t("profile.enter_name_to_set_active");
+                std::cin >> profileName;
+                if (profileName == "q" || profileName == "Q") break;
+                
+                try {
+                    cipherLock::ProfileManager::setActiveProfile(profileName);
+                    std::cout << I18n::instance().t("profile.set_active_successfully", {{"name", profileName}}) << "\n";
+                } catch (const std::exception& e) {
+                    std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_generic", {{"error_msg", e.what()}}) << Theme::instance().color(Theme::RESET) << "\n";
+                }
+                break;
+            }
+            case 5: { // Get Active
+                std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
+                if (activeProfileName.empty()) {
+                    std::cout << I18n::instance().t("profile.no_active_profile") << "\n";
+                } else {
+                    std::cout << I18n::instance().t("profile.current_active_profile", {{"name", activeProfileName}}) << "\n";
+                }
+                break;
+            }
+            case 6: // Back
+                running = false;
+                break;
+            default:
+                std::cout << Theme::instance().color(Theme::ERROR) << I18n::instance().t("ui.invalid_option") << Theme::instance().color(Theme::RESET) << "\n";
+        }
+    }
+}
+
+void run_settings_menu() { // TODO: Test this method (modified by Gemini)
     bool running = true;
     while(running) {
         std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << "--- " << I18n::instance().t("settings.menu_title") << " ---" << Theme::instance().color(Theme::RESET) << "\n";
@@ -163,12 +316,16 @@ void run_settings_menu() {
                 }
                 break;
             }
-            case 5: { // Back to Main Menu
+            case 5: { // Manage Profiles
+                run_profile_menu();
+                break;
+            }
+            case 6: { // Back to Main Menu
                 running = false;
                 break;
             }
             default:
-                std::cout << I18n::instance().t("ui.invalid_option") << "\n";
+                std::cout << Theme::instance().color(Theme::ERROR) << I18n::instance().t("ui.invalid_option") << Theme::instance().color(Theme::RESET) << "\n";
         }
     }
 }

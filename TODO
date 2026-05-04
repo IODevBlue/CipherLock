@@ -68,6 +68,7 @@ Localization:
      [ ] Implementing localization support to allow users to use the tool in their preferred language. This could involve creating a system for managing translations and allowing users to switch between languages easily.
      [ ] French translations need help. It is AI generated.
      [ ] Check the vault_loaded and no_vault_at_path translations. They are only in the english translation file and not in use in the project. Go figure.
+     [ ] Localize the details of the user when reading from `profile.json`.
 
 Themes:
      [ ] Implementing a theming system to allow users to customize the appearance of the tool. This could include options for different color schemes, font styles, and other visual elements to enhance the user experience.
