@@ -13,6 +13,7 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
+// TODO: Document
 class I18n { // TODO: Test this method (Gemini)
 public:
     static I18n& instance() {
@@ -21,7 +22,7 @@ public:
     }
 
     void load(const std::string& locale, const std::string& locale_dir = "locales") {
-        std::string path = locale_dir + "/" + locale + ".json";
+        fs::path path = fs::path(locale_dir) / (locale + ".json");
         std::ifstream file(path);
         if (!file.is_open()) {
             std::cerr << "DEBUG: Failed to open locale file at " << path << std::endl;
@@ -105,7 +106,8 @@ public:
 
 private:
     I18n() {
-        load("en", "../locales");
+        // load("en", "/Users/iodevblue/Documents/Github/CipherLock/locales");
+        load("en", "../locales"); // Try relative path as well for different working directories
     };
     json translations;
     std::string current_locale;

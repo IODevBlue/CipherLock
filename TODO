@@ -14,12 +14,14 @@ CLI Commands:
      [ ] Add command in hot mode, maybe in settings to edit current profile and to switch, create profiles. Even delete.
      [ ] In cipherlock status, the print out should be labeled properly. Project description should be after project name.
      [ ] Reverify the project backup key feature
+     [ ] Cold command to edit a profile. This would allow users to make changes to their project profiles without needing to go through the interactive boot process. It could be useful for making quick updates or adjustments to project settings.
 
 Documentation:
      [ ] Create a comprehensive user guide that covers all features of the tool, including how to use the CLI commands, manage user profiles, and customize themes. This guide should be easy to understand and include examples to help users get started quickly.
      [ ] Create a troubleshooting section in the documentation to help users resolve common issues they may encounter while using the tool. This could include solutions for common error messages, tips for optimizing performance, and guidance on how to securely manage encryption keys.
 
 Feature - Encryption:
+     [ ] For the conflict report, include the name/full name of the user who cypher locked the file. This would provide more context for users when reviewing the conflict report and could help them identify who is responsible for the encryption of specific files.
      [ ] Allow users rename and relocate the primary key file. This would provide more flexibility in how users manage their encryption keys and could enhance security by allowing them to store the key file in a more secure location or under a different name to make it less obvious.
      [ ] Implementing support for multiple encryption algorithms, allowing users to choose the one that best suits their needs. 
      [ ] Test this claim: Self-Healing Recovery: If the local master.clkey is deleted, CipherLock will automatically attempt to restore it from the profile backup during the boot process.
@@ -29,6 +31,10 @@ Feature - Encryption:
 Feature: Encrypted File Header:
      [ ] Let users be able to provide the custom location of their header file, the default would be in the .cipherlock folder.
 
+Feature - Milestone Tracking:
+     [ ] Test the Milestone Tracking feature to ensure it is functioning correctly and providing accurate tracking of project milestones. This could involve creating test projects with defined milestones and verifying that the feature correctly tracks progress and visualizes the timeline.
+     [ ] Implementing a feature to allow users to track milestones within their projects. This could include the ability to set goals, track progress, and visualize the timeline of a project. This would help users stay organized and motivated as they work on their projects.
+
 Feature - Project management:
      [ ] Should there be a feature where project metadata history is stored and can be accessed? This would allow users to track changes to project information over time and could be useful for auditing purposes or for understanding the evolution of a project.
 
@@ -36,9 +42,13 @@ Feature - Project programming language detection:
      [ ] Implementing a feature to automatically detect the programming language of a project based on its file structure and contents. This could be useful for providing language-specific features, such as syntax highlighting, code snippets, or language-specific templates.
      [ ] Detect text files, pdfs, word documents etc
 
+Feature - User Interface:
+     [ ] Allow the user interface to display the deadline in coloured text with red being for urgent deadlines, yellow for upcoming deadlines, and green for deadlines that are not urgent. This would provide a visual cue to users about the urgency of their deadlines and help them prioritize their tasks more effectively.
+
 Feature - User Profiles:
      [ ] Allow feature to check the total number of backed up keys for projects a profile has.
      [ ] Add feature to edit profile when in a hot mode for a project.
+     [ ] When editing the project profile, if a default is already provided then allow the user to keep the value by skipping. Type q to skip and c to clear.
      
 Generated Files:
      [ ] Implementing a feature to automatically generate files with specific content or structure based on user input. This could be useful for creating configuration files, templates, or other types of files that are commonly used in development projects.

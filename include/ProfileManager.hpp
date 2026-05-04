@@ -19,18 +19,48 @@ namespace fs = std::filesystem;
  * It is designed to be easily serializable to and deserializable from JSON.
  */
 struct UserProfile {
+    /**
+     * @brief Contact information for the profile.
+     */
+    struct Contact { // TODO: Test this method (Gemini)
+        std::string title;
+        std::string link;
+    };
+
     std::string name;
+    std::string full_name; // Optional full name
+    std::vector<Contact> contacts; // List of contact links
     std::string description;
     std::string theme; // Default theme name
 };
 
+// Define how to convert UserProfile::Contact to and from nlohmann::json
+inline void to_json(nlohmann::json& j, const UserProfile::Contact& c) { // TODO: Test this method (Gemini)
+    j = nlohmann::json{{"title", c.title}, {"link", c.link}};
+}
+
+inline void from_json(const nlohmann::json& j, UserProfile::Contact& c) { // TODO: Test this method (Gemini)
+    j.at("title").get_to(c.title);
+    j.at("link").get_to(c.link);
+}
+
 // Define how to convert UserProfile to and from nlohmann::json
 inline void to_json(nlohmann::json& j, const UserProfile& p) { // TODO: Test this method (Gemini)
-    j = nlohmann::json{{"name", p.name}, {"description", p.description}, {"theme", p.theme}};
+    j = nlohmann::json{
+        {"name", p.name},
+        {"full_name", p.full_name},
+        {"contacts", p.contacts},
+        {"description", p.description},
+        {"theme", p.theme}
+    };
 }
 
 inline void from_json(const nlohmann::json& j, UserProfile& p) { // TODO: Test this method (Gemini)
     j.at("name").get_to(p.name);
+    p.full_name = j.value("full_name", "");
+    if (j.contains("contacts")) {
+        j.at("contacts").get_to(p.contacts);
+    }
     j.at("description").get_to(p.description);
     p.theme = j.value("theme", "default");
 }

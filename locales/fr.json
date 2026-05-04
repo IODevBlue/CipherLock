@@ -113,6 +113,10 @@
         "error_subcommand_missing": "❌ Erreur : Sous-commande de profil manquante. Utilisation : cipherlock profile [create|list|set-active|get-active]",
         "enter_name": "Entrez le nom du profil : ",
         "enter_description": "Entrez la description du profil : ",
+        "enter_full_name": "Entrez votre nom complet (optionnel) : ",
+        "add_contacts_hint": "Ajoutez vos coordonnées (ex: Email: dev@example.com). Laissez vide pour terminer.",
+        "contact_title_prompt": "Titre du contact (ex: Email, GitHub) : ",
+        "contact_link_prompt": "Lien/valeur du contact : ",
         "created_and_set_active": "✅ Profil '{name}' créé et défini comme actif.",
         "created_successfully": "✅ Profil '{name}' créé avec succès.",
         "available_profiles": "Profils disponibles :",
@@ -127,6 +131,23 @@
         "no_active_profile_found_prompt": "Aucun profil utilisateur actif trouvé.",
         "prompt_create_or_set": "Veuillez créer un nouveau profil ('cipherlock profile create') ou en définir un existant ('cipherlock profile set-active') pour continuer.",
         "error_no_active_profile_critical": "❌ Erreur critique : Un profil utilisateur actif est requis pour cette commande.",
-        "warning_profile_info_failed": "Attention : Impossible d'obtenir les informations de profil pour l'affichage de bienvenue : {error_msg}"
+        "warning_profile_info_failed": "Attention : Impossible d'obtenir les informations de profil pour l'affichage de bienvenue : {error_msg}",
+        "no_contacts_provided": "Aucun fourni."
+    },
+    "signature": {
+        "report_header": "--- Rapport de conflit CipherLock ---",
+        "report_generated_on": "Généré le : {date}",
+        "report_skipped_files": "Les fichiers suivants ont été ignorés car ils sont déjà chiffrés par CipherLock :",
+        "conflict_summary": "[!] Rapport de conflit : {count} fichiers ignorés (déjà chiffrés)",
+        "conflict_save_notice": "Rapport complet enregistré dans .cipherlock/conflicts.log",
+        "conflict_more": "  ... et {count} de plus.",
+        "default_header_title": "--- FICHIER SÉCURISÉ CIPHERLOCK ---",
+        "default_header_project_id": "ID du projet : {{PROJECT_UUID}}",
+        "default_header_locked_by": "Verrouillé par : {{USER_NAME}}",
+        "default_header_date": "Date : {{DATE}}",
+        "default_header_contacts_title": "Contacts :",
+        "default_header_contacts_placeholder": "{{CONTACTS}}",
+        "default_header_warning": "ATTENTION : NE PAS MODIFIER OU ALTÉRER LE CONTENU DE CE FICHIER. Toute modification entraînera une corruption permanente des données et l'échec du déchiffrement.",
+        "restoring_key": "Restauration de la clé maître du projet à partir de la sauvegarde du profil..."
     }
 }

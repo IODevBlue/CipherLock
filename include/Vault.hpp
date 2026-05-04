@@ -32,6 +32,15 @@ public:
     };
 
     /**
+     * @brief Structure to represent a conflict report during vault operations.
+     */
+    struct ConflictReport { // TODO: Test this method (Gemini)
+        std::vector<fs::path> conflicted_files;
+        void save_to_file(const fs::path& path) const;
+        void print_summary() const;
+    };
+
+    /**
      * @brief Initializes a vault in the specified directory.
      * @param directory The root directory of the codebase.
      * @param profile_name The name of the profile initializing the vault.
@@ -150,10 +159,12 @@ private:
     static constexpr const char* MAGIC = "CLOK";
     static constexpr unsigned char VERSION_V1 = 0x01;
     static constexpr unsigned char VERSION_V2 = 0x02;
-    static constexpr unsigned char VERSION = VERSION_V1;
+    static constexpr unsigned char VERSION_V3 = 0x03;
+    static constexpr unsigned char VERSION = VERSION_V3;
     static constexpr size_t FILE_ID_LEN = 16;
     static constexpr size_t SALT_LEN = 16;
     static constexpr size_t IV_LEN = 16;
+    static constexpr size_t UUID_LEN = 16;
 
 #pragma pack(push, 1)
     struct FileHeaderV1 {
@@ -173,7 +184,19 @@ private:
         unsigned char salt[SALT_LEN];
         unsigned char iv[IV_LEN];
     };
-    using FileHeader = FileHeaderV1;
+
+    struct FileHeaderV3 {
+        char magic[4];
+        unsigned char version;
+        unsigned char project_uuid[UUID_LEN];
+        unsigned char file_id[FILE_ID_LEN];
+        unsigned char milestone_id[FILE_ID_LEN];
+        uint32_t version_counter;
+        uint64_t payload_size;
+        unsigned char salt[SALT_LEN];
+        unsigned char iv[IV_LEN];
+    };
+    using FileHeader = FileHeaderV3;
 #pragma pack(pop)
     
     std::vector<std::regex> read_ignore_patterns(); // TODO: Test this method (Gemini)

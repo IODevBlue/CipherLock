@@ -1,0 +1,3 @@
+/Users/iodevblue/Documents/Github/CipherLock/CMakeFiles/cipherlock.dir
+/Users/iodevblue/Documents/Github/CipherLock/CMakeFiles/edit_cache.dir
+/Users/iodevblue/Documents/Github/CipherLock/CMakeFiles/rebuild_cache.dir

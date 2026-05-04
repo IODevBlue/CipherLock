@@ -15,6 +15,7 @@ void Theme::loadDefault() {
     colorMap["secondary"] = "\033[1;33m";
     colorMap["success"]   = "\033[1;32m";
     colorMap["error"]     = "\033[1;31m";
+    colorMap["warning"]   = "\033[1;33m";
     colorMap["info"]      = "\033[1;34m";
     colorMap["accent"]    = "\033[1;35m";
     colorMap["prompt"]    = "\033[1;32m";
@@ -50,6 +51,7 @@ bool Theme::load(const std::string& themeName, const std::string& themesDir) {
                 colorMap["secondary"] = colors.at("secondary").get<std::string>();
                 colorMap["success"]   = colors.at("success").get<std::string>();
                 colorMap["error"]     = colors.at("error").get<std::string>();
+                colorMap["warning"]   = colors.value("warning", "\033[1;33m");
                 colorMap["info"]      = colors.at("info").get<std::string>();
                 colorMap["accent"]    = colors.at("accent").get<std::string>();
                 colorMap["prompt"]    = colors.at("prompt").get<std::string>();

@@ -45,6 +45,7 @@ public:
     static constexpr const char* SECONDARY = "secondary";
     static constexpr const char* SUCCESS   = "success";
     static constexpr const char* ERROR     = "error";
+    static constexpr const char* WARNING   = "warning";
     static constexpr const char* INFO      = "info";
     static constexpr const char* ACCENT    = "accent";
     static constexpr const char* PROMPT    = "prompt";

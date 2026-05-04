@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/Users/iodevblue/Documents/Github/CipherLock",
+  "command": "/usr/bin/c++  -I/Users/iodevblue/Documents/Github/CipherLock/include -isystem /usr/local/Cellar/openssl@3/3.6.0/include -std=gnu++17 -o CMakeFiles/cipherlock.dir/src/ProfileManager.cpp.o -c /Users/iodevblue/Documents/Github/CipherLock/src/ProfileManager.cpp",
+  "file": "/Users/iodevblue/Documents/Github/CipherLock/src/ProfileManager.cpp",
+  "output": "CMakeFiles/cipherlock.dir/src/ProfileManager.cpp.o"
+},
+{
+  "directory": "/Users/iodevblue/Documents/Github/CipherLock",
+  "command": "/usr/bin/c++  -I/Users/iodevblue/Documents/Github/CipherLock/include -isystem /usr/local/Cellar/openssl@3/3.6.0/include -std=gnu++17 -o CMakeFiles/cipherlock.dir/src/Theme.cpp.o -c /Users/iodevblue/Documents/Github/CipherLock/src/Theme.cpp",
+  "file": "/Users/iodevblue/Documents/Github/CipherLock/src/Theme.cpp",
+  "output": "CMakeFiles/cipherlock.dir/src/Theme.cpp.o"
+},
+{
+  "directory": "/Users/iodevblue/Documents/Github/CipherLock",
+  "command": "/usr/bin/c++  -I/Users/iodevblue/Documents/Github/CipherLock/include -isystem /usr/local/Cellar/openssl@3/3.6.0/include -std=gnu++17 -o CMakeFiles/cipherlock.dir/src/Vault.cpp.o -c /Users/iodevblue/Documents/Github/CipherLock/src/Vault.cpp",
+  "file": "/Users/iodevblue/Documents/Github/CipherLock/src/Vault.cpp",
+  "output": "CMakeFiles/cipherlock.dir/src/Vault.cpp.o"
+},
+{
+  "directory": "/Users/iodevblue/Documents/Github/CipherLock",
+  "command": "/usr/bin/c++  -I/Users/iodevblue/Documents/Github/CipherLock/include -isystem /usr/local/Cellar/openssl@3/3.6.0/include -std=gnu++17 -o CMakeFiles/cipherlock.dir/src/main.cpp.o -c /Users/iodevblue/Documents/Github/CipherLock/src/main.cpp",
+  "file": "/Users/iodevblue/Documents/Github/CipherLock/src/main.cpp",
+  "output": "CMakeFiles/cipherlock.dir/src/main.cpp.o"
+}
+]

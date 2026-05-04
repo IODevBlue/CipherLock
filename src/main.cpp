@@ -48,12 +48,12 @@ void run_profile_command(int argc, char* argv[]) { // TODO: Test this method (mo
 
             if (cipherLock::ProfileManager::listProfiles().empty()) {
                 // If this is the first profile, make it active by default
-                cipherLock::UserProfile newProfile = {profileName, description, "default"};
+                cipherLock::UserProfile newProfile = {profileName, "", {}, description, "default"};
                 cipherLock::ProfileManager::saveProfile(newProfile);
                 cipherLock::ProfileManager::setActiveProfile(profileName);
                 std::cout << I18n::instance().t("profile.created_and_set_active", {{"name", profileName}}) << "\n";
             } else {
-                cipherLock::UserProfile newProfile = {profileName, description, "default"};
+                cipherLock::UserProfile newProfile = {profileName, "", {}, description, "default"};
                 cipherLock::ProfileManager::saveProfile(newProfile);
                 std::cout << I18n::instance().t("profile.created_successfully", {{"name", profileName}}) << "\n";
             }
@@ -329,7 +329,7 @@ void run_hot_mode(const std::string& start_dir = ".", const std::string& active_
 
 int main(int argc, char* argv[]) {
     // Initialize localization
-    I18n::instance().load("en", "../locales");
+
 
     std::string arg1 = (argc > 1) ? argv[1] : "";
 
