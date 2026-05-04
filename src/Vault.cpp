@@ -38,7 +38,7 @@ void Vault::ConflictReport::print_summary() const { // TODO: Test this method (G
         std::cout << "  - " << conflicted_files[i].filename().string() << "\n";
     }
     if (conflicted_files.size() > 5) {
-        std::cout << "  ... and " << (conflicted_files.size() - 5) << " more.\n";
+        std::cout << I18n::instance().t("signature.conflict_more", {{"count", std::to_string(conflicted_files.size() - 5)}}) << "\n";
     }
     std::cout << I18n::instance().t("signature.conflict_save_notice") << "\n";
 }
@@ -249,8 +249,10 @@ bool Vault::load(const std::string& directory) { // TODO: Test this method (Gemi
         project_currency = config.value("currency", "USD");
         project_setup_date = config.value("setup_date", (uint64_t)0);
         project_created_by = config.value("created_by", "");
+        export_root = config.value("export_root", "cipherlock_export");
 
-        // Auto-generate UUID if missing (for backward compatibility)
+        // Ensure export root is ignored
+        ensure_gitignore_ignored();
         if (project_uuid.empty()) {
             project_uuid = generate_uuid();
             config["uuid"] = project_uuid;
@@ -323,52 +325,57 @@ bool Vault::edit_project_metadata() { // TODO: Test this method (Gemini)
     std::cout << I18n::instance().t("project.enter_name", {{"default", project_name}});
     std::string input_name;
     std::getline(std::cin >> std::ws, input_name);
-    if (!input_name.empty()) project_name = input_name;
+    if (!input_name.empty() && input_name != "q" && input_name != "Q") project_name = input_name;
 
     // 2. Valuation
-    std::cout << I18n::instance().t("project.enter_valuation") << " [" << project_valuation << "]: ";
+    std::cout << I18n::instance().t("project.enter_valuation", {{"default", std::to_string(project_valuation)}});
     std::string input_val;
     std::getline(std::cin, input_val);
-    if (!input_val.empty()) {
+    if (!input_val.empty() && input_val != "q" && input_val != "Q") {
         try {
             project_valuation = std::stod(input_val);
         } catch (...) {}
     }
 
     // 3. Currency
-    std::cout << I18n::instance().t("project.enter_currency") << " [" << project_currency << "]: ";
+    std::cout << I18n::instance().t("project.enter_currency", {{"default", project_currency}});
     std::string input_curr;
     std::getline(std::cin, input_curr);
-    if (!input_curr.empty()) {
+    if (!input_curr.empty() && input_curr != "q" && input_curr != "Q") {
         std::transform(input_curr.begin(), input_curr.end(), input_curr.begin(), ::toupper);
         project_currency = input_curr;
     }
 
     // 4. Description
-    std::cout << I18n::instance().t("project.enter_description") << (project_description.empty() ? "" : " [" + project_description + "]") << ": ";
+    std::cout << I18n::instance().t("project.enter_description");
     std::string input_desc;
     std::getline(std::cin, input_desc);
-    if (!input_desc.empty()) {
-        if (input_desc == "q" || input_desc == "Q") project_description = "";
-        else project_description = input_desc;
+    if (!input_desc.empty() && input_desc != "q" && input_desc != "Q") {
+        project_description = input_desc;
     }
 
     // 5. Client
-    std::cout << I18n::instance().t("project.enter_client") << (project_client.empty() ? "" : " [" + project_client + "]") << ": ";
+    std::cout << I18n::instance().t("project.enter_client");
     std::string input_client;
     std::getline(std::cin, input_client);
-    if (!input_client.empty()) {
-        if (input_client == "q" || input_client == "Q") project_client = "";
-        else project_client = input_client;
+    if (!input_client.empty() && input_client != "q" && input_client != "Q") {
+        project_client = input_client;
     }
 
     // 6. Deadline
-    std::cout << I18n::instance().t("project.enter_deadline") << (project_deadline.empty() ? "" : " [" + project_deadline + "]") << ": ";
+    std::cout << I18n::instance().t("project.enter_deadline");
     std::string input_deadline;
     std::getline(std::cin, input_deadline);
-    if (!input_deadline.empty()) {
-        if (input_deadline == "q" || input_deadline == "Q") project_deadline = "";
-        else project_deadline = input_deadline;
+    if (!input_deadline.empty() && input_deadline != "q" && input_deadline != "Q") {
+        project_deadline = input_deadline;
+    }
+
+    // 7. Export Root
+    std::cout << I18n::instance().t("project.enter_export_root", {{"default", export_root.string()}});
+    std::string input_export;
+    std::getline(std::cin, input_export);
+    if (!input_export.empty() && input_export != "q" && input_export != "Q") {
+        export_root = input_export;
     }
 
     save_config();
@@ -405,22 +412,23 @@ bool Vault::setup(const std::string& directory, const std::string& profile_name)
     std::cout << I18n::instance().t("project.enter_name", {{"default", project_name}});
     std::string input_name;
     std::getline(std::cin >> std::ws, input_name);
-    if (!input_name.empty()) {
+    if (!input_name.empty() && input_name != "q" && input_name != "Q") {
         project_name = input_name;
     }
 
-    std::cout << I18n::instance().t("project.enter_valuation");
-    while (!(std::cin >> project_valuation)) {
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cout << I18n::instance().t("project.enter_valuation");
+    std::cout << I18n::instance().t("project.enter_valuation", {{"default", "0.0"}});
+    std::string input_val;
+    std::getline(std::cin, input_val);
+    if (!input_val.empty() && input_val != "q" && input_val != "Q") {
+        try {
+            project_valuation = std::stod(input_val);
+        } catch (...) {}
     }
 
-    std::cout << I18n::instance().t("project.enter_currency");
+    std::cout << I18n::instance().t("project.enter_currency", {{"default", "USD"}});
     std::string input_currency;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     std::getline(std::cin, input_currency);
-    if (!input_currency.empty()) {
+    if (!input_currency.empty() && input_currency != "q" && input_currency != "Q") {
         std::transform(input_currency.begin(), input_currency.end(), input_currency.begin(), ::toupper);
         currency = input_currency;
     } else {
@@ -442,6 +450,11 @@ bool Vault::setup(const std::string& directory, const std::string& profile_name)
     std::getline(std::cin, project_deadline);
     if (project_deadline == "q" || project_deadline == "Q") project_deadline = "";
 
+    std::cout << I18n::instance().t("project.enter_export_root", {{"default", "cipherlock_export"}});
+    std::string input_export;
+    std::getline(std::cin, input_export);
+    export_root = input_export.empty() ? "cipherlock_export" : input_export;
+
     // 1c. Enhanced Profile Info
     std::string full_name;
     std::cout << I18n::instance().t("profile.enter_full_name");
@@ -453,12 +466,13 @@ bool Vault::setup(const std::string& directory, const std::string& profile_name)
         std::cout << I18n::instance().t("profile.contact_title_prompt");
         std::string title;
         std::getline(std::cin, title);
-        if (title.empty()) break;
+        if (title.empty() || title == "q") break;
 
         std::cout << I18n::instance().t("profile.contact_link_prompt");
         std::string link;
         std::getline(std::cin, link);
-        if (link.empty()) break;
+        if (link == "q") continue; // Skip this entry
+        if (link.empty()) link = "nil";
 
         contacts.push_back({title, link});
     }
@@ -528,35 +542,36 @@ bool Vault::setup(const std::string& directory, const std::string& profile_name)
 }
 
 void Vault::ensure_gitignore_ignored() { // TODO: Test this method (Gemini)
-    fs::path gitignore_file = vault_root / ".gitignore";
-    bool already_ignored = false;
-    
-    if (fs::exists(gitignore_file)) {
-        std::ifstream in(gitignore_file);
-        std::string line;
-        while (std::getline(in, line)) {
-            // Trim line
-            line.erase(0, line.find_first_not_of(" \t\n\r\f\v"));
-            line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
-            
-            if (line == ".cipherlock" || line == ".cipherlock/" || line == "/.cipherlock/" || line == "/.cipherlock") {
-                already_ignored = true;
-                break;
+    auto ensure_ignored = [this](const fs::path& ignore_file_path) {
+        bool needs_cipherlock = true;
+        bool needs_export = true;
+        std::string export_str = export_root.string();
+        if (export_str.back() != '/') export_str += "/";
+
+        if (fs::exists(ignore_file_path)) {
+            std::ifstream ifs(ignore_file_path);
+            std::string line;
+            while (std::getline(ifs, line)) {
+                line.erase(0, line.find_first_not_of(" \t\n\r\f\v"));
+                line.erase(line.find_last_not_of(" \t\n\r\f\v") + 1);
+
+                if (line == ".cipherlock" || line == ".cipherlock/") needs_cipherlock = false;
+                if (line == export_str || line == export_root.string()) needs_export = false;
             }
         }
-    }
 
-    if (!already_ignored) {
-        std::ofstream out(gitignore_file, std::ios::app);
-        if (out) {
-            out << "\n# Cipherlock\n.cipherlock/\n";
-            std::cout << I18n::instance().t("vault.gitignore_updated") << std::endl;
-        } else {
-            std::cerr << I18n::instance().t("vault.gitignore_error") << std::endl;
+        if (needs_cipherlock || needs_export) {
+            std::ofstream ofs(ignore_file_path, std::ios::app);
+            if (ofs) {
+                if (needs_cipherlock) ofs << "\n# Cipherlock\n.cipherlock/\n";
+                if (needs_export) ofs << export_str << "\n";
+            }
         }
-    }
-}
+    };
 
+    ensure_ignored(vault_root / ".gitignore");
+    ensure_ignored(vault_root / ".cipherignore");
+}
 std::vector<std::regex> Vault::read_ignore_patterns() { // TODO: Test this method (Gemini)
     std::vector<std::regex> patterns;
     fs::path ignore_file = vault_root / ".cipherignore";
@@ -708,10 +723,10 @@ bool Vault::encrypt_file(const fs::path& filepath, const std::string& milestone_
         for (const auto& c : profile.contacts) {
             contact_list += " - " + c.title + ": " + c.link + "\n";
         }
-        vars["CONTACTS"] = contact_list;
+        vars["CONTACT_LIST"] = contact_list;
     } catch (...) {
         vars["USER_NAME"] = active_profile_name;
-        vars["CONTACTS"] = I18n::instance().t("profile.no_contacts_provided");
+        vars["CONTACT_LIST"] = I18n::instance().t("profile.no_contacts_provided");
     }
 
     std::time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -719,9 +734,11 @@ bool Vault::encrypt_file(const fs::path& filepath, const std::string& milestone_
     // Remove newline from ctime
     if (!vars["DATE"].empty()) vars["DATE"].pop_back();
 
+    auto sig_config = cipherLock::SignatureConfig::load(vault_root / ".cipherlock" / "file_signature.yaml");
+
     std::string preamble = cipherLock::SignatureEngine::generate_preamble(
         filepath, 
-        vault_root / ".cipherlock" / "signature_header.txt", 
+        vault_root / sig_config.header.template_path, 
         vars
     );
 
@@ -743,11 +760,20 @@ bool Vault::encrypt_file(const fs::path& filepath, const std::string& milestone_
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, file_key, header.iv);
 
-    std::string out_path = filepath.string() + ".tmp";
+    fs::path rel_filepath = fs::relative(filepath, vault_root);
+    fs::path out_path = vault_root / export_root / "locked" / (rel_filepath.string() + ".locked");
+    
+    // Ensure parent directory exists in export
+    fs::create_directories(out_path.parent_path());
+
     std::ofstream out(out_path, std::ios::binary);
 
     // Write Preamble
     out.write(preamble.c_str(), preamble.length());
+
+    // Write Binary Delimiter
+    out.write(BINARY_DELIMITER, 4);
+
     // Write Header
     out.write((char*)&header, sizeof(FileHeaderV3));
 
@@ -773,8 +799,6 @@ bool Vault::encrypt_file(const fs::path& filepath, const std::string& milestone_
     in.close();
     out.close();
 
-    fs::remove(filepath);
-    fs::rename(out_path, filepath.string() + ".locked");
     return true;
 }
 
@@ -782,22 +806,27 @@ bool Vault::decrypt_file(const fs::path& filepath) { // TODO: Test this method (
     std::ifstream in(filepath, std::ios::binary);
     if (!in) return false;
 
-    // Search for MAGIC marker to skip preamble
-    char magic[4];
-    bool found_magic = false;
-    while (in.read(magic, 4)) {
-        if (memcmp(magic, MAGIC, 4) == 0) {
-            found_magic = true;
+    // Search for BINARY_DELIMITER marker to skip preamble
+    char delim[4];
+    bool found_delim = false;
+    while (in.read(delim, 4)) {
+        if (memcmp(delim, BINARY_DELIMITER, 4) == 0) {
+            found_delim = true;
             break;
         }
         // Move back 3 bytes to handle overlapping matches
         in.seekg(-3, std::ios::cur);
         
-        // Safety: don't scan more than 8KB for the magic
+        // Safety: don't scan more than 8KB for the delimiter
         if (in.tellg() > 8192) break;
     }
 
-    if (!found_magic) return false;
+    if (!found_delim) return false;
+
+    char magic[4];
+    if (!in.read(magic, 4) || memcmp(magic, MAGIC, 4) != 0) {
+        return false;
+    }
 
     unsigned char version;
     in.read((char*)&version, 1);
@@ -889,9 +918,15 @@ bool Vault::decrypt_file(const fs::path& filepath) { // TODO: Test this method (
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, file_key, iv);
 
-    std::string original_path = filepath.string();
-    original_path = original_path.substr(0, original_path.find(".locked"));
-    std::string out_path = original_path + ".tmp";
+    // Prepare output path in export/unlocked
+    fs::path rel_locked_path = fs::relative(filepath, vault_root / export_root / "locked");
+    std::string rel_unlocked_str = rel_locked_path.string();
+    if (rel_unlocked_str.size() > 7 && rel_unlocked_str.substr(rel_unlocked_str.size() - 7) == ".locked") {
+        rel_unlocked_str = rel_unlocked_str.substr(0, rel_unlocked_str.size() - 7);
+    }
+    fs::path out_path = vault_root / export_root / "unlocked" / rel_unlocked_str;
+    fs::create_directories(out_path.parent_path());
+
     std::ofstream out(out_path, std::ios::binary);
 
     unsigned char in_buf[4096];
@@ -916,8 +951,6 @@ bool Vault::decrypt_file(const fs::path& filepath) { // TODO: Test this method (
     in.close();
     out.close();
 
-    fs::remove(filepath);
-    fs::rename(out_path, original_path);
     return true;
 }
 
@@ -927,19 +960,24 @@ std::string Vault::share_file(const fs::path& filepath) { // TODO: Test this met
     std::ifstream in(filepath, std::ios::binary);
     if (!in) return "";
 
-    // Search for MAGIC marker
-    char magic[4];
-    bool found_magic = false;
-    while (in.read(magic, 4)) {
-        if (memcmp(magic, MAGIC, 4) == 0) {
-            found_magic = true;
+    // Search for BINARY_DELIMITER marker
+    char delim[4];
+    bool found_delim = false;
+    while (in.read(delim, 4)) {
+        if (memcmp(delim, BINARY_DELIMITER, 4) == 0) {
+            found_delim = true;
             break;
         }
         in.seekg(-3, std::ios::cur);
         if (in.tellg() > 8192) break;
     }
 
-    if (!found_magic) return "";
+    if (!found_delim) return "";
+
+    char magic[4];
+    if (!in.read(magic, 4) || memcmp(magic, MAGIC, 4) != 0) {
+        return "";
+    }
 
     unsigned char version;
     in.read((char*)&version, 1);
@@ -1005,18 +1043,23 @@ bool Vault::decrypt_with_token(const std::string& token_json, const std::string&
             if (entry.is_regular_file() && entry.path().extension() == ".locked") {
                 std::ifstream in(entry.path(), std::ios::binary);
                 
-                // Search for MAGIC
-                char magic[4];
-                bool found_magic = false;
-                while (in.read(magic, 4)) {
-                    if (memcmp(magic, MAGIC, 4) == 0) {
-                        found_magic = true;
+                // Search for BINARY_DELIMITER
+                char delim[4];
+                bool found_delim = false;
+                while (in.read(delim, 4)) {
+                    if (memcmp(delim, BINARY_DELIMITER, 4) == 0) {
+                        found_delim = true;
                         break;
                     }
                     in.seekg(-3, std::ios::cur);
                     if (in.tellg() > 8192) break;
                 }
-                if (!found_magic) continue;
+                if (!found_delim) continue;
+
+                char magic[4];
+                if (!in.read(magic, 4) || memcmp(magic, MAGIC, 4) != 0) {
+                    continue;
+                }
 
                 unsigned char version;
                 in.read((char*)&version, 1);
@@ -1099,6 +1142,9 @@ bool Vault::lock_vault(const std::string& milestone_id) { // TODO: Test this met
     int count = 0;
     ConflictReport report;
 
+    // Clear old conflict log
+    fs::remove(vault_root / ".cipherlock" / "conflicts.log");
+
     for (const auto& entry : fs::recursive_directory_iterator(vault_root)) {
         if (entry.is_regular_file() && !should_ignore(entry.path(), patterns)) {
             if (encrypt_file(entry.path(), milestone_id)) {
@@ -1143,29 +1189,46 @@ bool Vault::lock_vault(const std::string& milestone_id) { // TODO: Test this met
 }
 
 bool Vault::unlock_vault() { // TODO: Test this method (modified by Gemini)
-    auto patterns = read_ignore_patterns();
+    fs::path locked_dir = vault_root / export_root / "locked";
+    if (!fs::exists(locked_dir)) {
+        std::cout << "No locked files found in export directory.\n";
+        return true;
+    }
+
     int count = 0;
-    for (const auto& entry : fs::recursive_directory_iterator(vault_root)) {
+    std::vector<fs::path> orphaned_files;
+
+    for (const auto& entry : fs::recursive_directory_iterator(locked_dir)) {
         if (entry.is_regular_file() && entry.path().extension() == ".locked") {
             if (decrypt_file(entry.path())) {
                 count++;
-                std::cout << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("vault.unlocked", {{"path", fs::relative(entry.path(), vault_root).string()}}) << Theme::instance().color(Theme::RESET) << std::endl;
+                
+                // Check if source exists
+                fs::path rel_locked = fs::relative(entry.path(), locked_dir);
+                std::string rel_source_str = rel_locked.string();
+                if (rel_source_str.size() > 7 && rel_source_str.substr(rel_source_str.size() - 7) == ".locked") {
+                    rel_source_str = rel_source_str.substr(0, rel_source_str.size() - 7);
+                }
+                fs::path source_path = vault_root / rel_source_str;
+                
+                if (!fs::exists(source_path)) {
+                    orphaned_files.push_back(source_path);
+                }
+
+                std::cout << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("vault.unlocked", {{"path", rel_source_str}}) << Theme::instance().color(Theme::RESET) << std::endl;
             }
         }
     }
+
+    if (!orphaned_files.empty()) {
+        std::cout << "\n" << Theme::instance().color(Theme::WARNING) << "⚠️  " << I18n::instance().t("signature.orphan_report_title") << Theme::instance().color(Theme::RESET) << "\n";
+        for (const auto& orphan : orphaned_files) {
+            std::cout << "  - " << fs::relative(orphan, vault_root).string() << "\n";
+        }
+    }
+
     is_armed = false;
-
-    // Update config
-    fs::path config_path = vault_root / ".cipherlock" / "config.json";
-    std::ifstream ifs(config_path);
-    json config;
-    ifs >> config;
-    ifs.close();
-
-    config["armed"] = false;
-    config["disarm_date"] = std::chrono::system_clock::now().time_since_epoch().count();
-    std::ofstream config_file(config_path);
-    config_file << config.dump(4);
+    save_config();
 
     std::cout << "\n" << Theme::instance().color(Theme::SUCCESS) << I18n::instance().t("vault.disarmed_success", {{"count", std::to_string(count)}}) << Theme::instance().color(Theme::RESET) << std::endl;
     return true;
@@ -1257,6 +1320,7 @@ bool Vault::save_config() { // TODO: Test this method (Gemini)
     config["currency"] = project_currency;
     config["created_by"] = project_created_by;
     config["setup_date"] = project_setup_date;
+    config["export_root"] = export_root.string();
     
     json milestones_json = json::array();
     for (const auto& m : milestones) {

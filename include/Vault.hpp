@@ -141,6 +141,7 @@ public:
 
 private:
     fs::path vault_root;
+    fs::path export_root;
     bool is_armed = false;
     std::vector<unsigned char> master_key; // The raw PMK (256-bit)
     std::string project_uuid;
@@ -157,6 +158,7 @@ private:
 
     // Header constants
     static constexpr const char* MAGIC = "CLOK";
+    static constexpr const char* BINARY_DELIMITER = "\xCF\xAC\xED\xFE";
     static constexpr unsigned char VERSION_V1 = 0x01;
     static constexpr unsigned char VERSION_V2 = 0x02;
     static constexpr unsigned char VERSION_V3 = 0x03;

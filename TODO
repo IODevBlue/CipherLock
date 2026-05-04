@@ -1,3 +1,8 @@
+Bugs:
+     [ ] When a project is booted, the `export_root` field in the `config.json` is not being updated with the value provided by the user during the boot process. This means that even if the user specifies a custom export directory, the project will continue to use the default export directory defined in the code. This issue needs to be fixed to ensure that the user's specified export directory is correctly saved and used for exporting encrypted files.
+     [ ] The date provided by the software when you query project information contains too many spaces between month and day eg: Mon May  4 12:13:39 2026. Go figure.
+     [ ] Do not create the `cipherlock_export` directory every time the project boots. Only create when encrypt/decrypt events happen. This will prevent unnecessary directories from being created and keep the project structure cleaner..
+
 Cleanups:
      [ ] Make sure there is nothing left for TOTP.
 
@@ -27,6 +32,7 @@ Feature - Encryption:
      [ ] Test this claim: Self-Healing Recovery: If the local master.clkey is deleted, CipherLock will automatically attempt to restore it from the profile backup during the boot process.
      [ ] Improve or remove the encryptor animation.
      [ ] Implementing a feature to allow users to specify a custom header for their encrypted files. This header could include metadata about the encryption, such as the algorithm used, the date of encryption, or other relevant information. This would help users keep track of their encrypted files and provide additional context when working with them.  
+     [ ] Consider git tracking the encrypted files and then commiting the changes when an encryption run is made. Make the commit messages generic yet incremental.
 
 Feature: Encrypted File Header:
      [ ] Let users be able to provide the custom location of their header file, the default would be in the .cipherlock folder.
@@ -37,6 +43,8 @@ Feature - Milestone Tracking:
 
 Feature - Project management:
      [ ] Should there be a feature where project metadata history is stored and can be accessed? This would allow users to track changes to project information over time and could be useful for auditing purposes or for understanding the evolution of a project.
+     [ ] For every missing field in the `config.json` when a project is boot, add it and notify the user that the missing field has been added with a default.
+     [ ] When editing the project profile, if a default is already provided then allow the user to keep the value by skipping. Type q to skip and c to clear.
 
 Feature - Project programming language detection:
      [ ] Implementing a feature to automatically detect the programming language of a project based on its file structure and contents. This could be useful for providing language-specific features, such as syntax highlighting, code snippets, or language-specific templates.
@@ -49,7 +57,10 @@ Feature - User Profiles:
      [ ] Allow feature to check the total number of backed up keys for projects a profile has.
      [ ] Add feature to edit profile when in a hot mode for a project.
      [ ] When editing the project profile, if a default is already provided then allow the user to keep the value by skipping. Type q to skip and c to clear.
-     
+     [ ] Functionality to edit and create contacts.
+     [ ] Provide a way to view current profile details, to edit, create and delete profile as well as switch profiles in the settings menu.
+
+
 Generated Files:
      [ ] Implementing a feature to automatically generate files with specific content or structure based on user input. This could be useful for creating configuration files, templates, or other types of files that are commonly used in development projects.
 

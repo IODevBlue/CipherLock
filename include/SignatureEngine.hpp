@@ -15,6 +15,49 @@ namespace fs = std::filesystem;
 namespace cipherLock {
 
 /**
+ * @brief Configuration for file signatures.
+ */
+struct SignatureConfig { // TODO: Test this method (Gemini)
+    struct HeaderConfig {
+        std::string template_path = ".cipherlock/signature_header.txt";
+        std::string comment_style = "auto";
+        bool enforce_visibility = true;
+    } header;
+
+    /**
+     * @brief Loads signature configuration from a file.
+     * @param path The path to the configuration file (YAML).
+     * @return The loaded SignatureConfig.
+     */
+    static SignatureConfig load(const fs::path& path) { // TODO: Test this method (Gemini)
+        SignatureConfig config;
+        std::ifstream ifs(path);
+        if (!ifs.is_open()) return config;
+
+        std::string line;
+        while (std::getline(ifs, line)) {
+            // Very basic YAML-like parsing for the required fields
+            if (line.find("template_path:") != std::string::npos) {
+                size_t start = line.find("\"") + 1;
+                size_t end = line.find_last_of("\"");
+                if (start != std::string::npos && end != std::string::npos && end > start) {
+                    config.header.template_path = line.substr(start, end - start);
+                }
+            } else if (line.find("comment_style:") != std::string::npos) {
+                size_t start = line.find("\"") + 1;
+                size_t end = line.find_last_of("\"");
+                if (start != std::string::npos && end != std::string::npos && end > start) {
+                    config.header.comment_style = line.substr(start, end - start);
+                }
+            } else if (line.find("enforce_visibility:") != std::string::npos) {
+                config.header.enforce_visibility = (line.find("true") != std::string::npos);
+            }
+        }
+        return config;
+    }
+};
+
+/**
  * @brief Handles generation of human-readable preambles for encrypted files.
  */
 class SignatureEngine { // TODO: Test this method (Gemini)
@@ -55,14 +98,25 @@ public:
         static const std::map<std::string, CommentStyle> style_map = {
             {".cpp", CommentStyle::BLOCK_C}, {".hpp", CommentStyle::BLOCK_C},
             {".c", CommentStyle::BLOCK_C}, {".h", CommentStyle::BLOCK_C},
+            {".cc", CommentStyle::BLOCK_C}, {".hh", CommentStyle::BLOCK_C},
             {".js", CommentStyle::BLOCK_C}, {".ts", CommentStyle::BLOCK_C},
-            {".css", CommentStyle::BLOCK_C}, {".java", CommentStyle::BLOCK_C},
+            {".jsx", CommentStyle::BLOCK_C}, {".tsx", CommentStyle::BLOCK_C},
+            {".css", CommentStyle::BLOCK_C}, {".scss", CommentStyle::BLOCK_C},
+            {".sass", CommentStyle::BLOCK_C}, {".less", CommentStyle::BLOCK_C},
+            {".java", CommentStyle::BLOCK_C}, {".kt", CommentStyle::BLOCK_C},
+            {".go", CommentStyle::BLOCK_C}, {".rs", CommentStyle::BLOCK_C},
+            {".swift", CommentStyle::BLOCK_C}, {".m", CommentStyle::BLOCK_C},
+            {".mm", CommentStyle::BLOCK_C}, {".cs", CommentStyle::BLOCK_C},
             {".py", CommentStyle::HASH}, {".sh", CommentStyle::HASH},
+            {".bash", CommentStyle::HASH}, {".zsh", CommentStyle::HASH},
             {".yaml", CommentStyle::HASH}, {".yml", CommentStyle::HASH},
             {".rb", CommentStyle::HASH}, {".pl", CommentStyle::HASH},
+            {".php", CommentStyle::HASH}, {".pyw", CommentStyle::HASH},
             {".lua", CommentStyle::DASH}, {".sql", CommentStyle::DASH},
+            {".hs", CommentStyle::DASH}, {".ada", CommentStyle::DASH},
             {".html", CommentStyle::XML}, {".xml", CommentStyle::XML},
-            {".svg", CommentStyle::XML}
+            {".svg", CommentStyle::XML}, {".xaml", CommentStyle::XML},
+            {".vue", CommentStyle::XML}
         };
 
         auto it = style_map.find(extension);
