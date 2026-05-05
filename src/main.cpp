@@ -79,11 +79,31 @@ void run_profile_command(int argc, char* argv[]) { // TODO: Test this method (mo
             cipherLock::ProfileManager::setActiveProfile(profileName);
             std::cout << I18n::instance().t("profile.set_active_successfully", {{"name", profileName}}) << "\n";
         } else if (subcommand == "get-active") {
-            std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
-            if (activeProfileName.empty()) {
+            cipherLock::UserProfile profile = cipherLock::ProfileManager::getActiveProfile();
+            if (profile.name.empty()) {
                 std::cout << I18n::instance().t("profile.no_active_profile") << "\n";
             } else {
-                std::cout << I18n::instance().t("profile.current_active_profile", {{"name", activeProfileName}}) << "\n";
+                // Display full profile details with emojis
+                std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << "👤 " << I18n::instance().t("profile.details_title", {{"name", profile.name}}) << Theme::instance().color(Theme::RESET) << "\n";
+                std::cout << "  ▫️ " << I18n::instance().t("profile.name_label") << ": " << profile.name << "\n";
+                if (!profile.full_name.empty()) {
+                    std::cout << "  ▫️ " << I18n::instance().t("profile.full_name_label") << ": " << profile.full_name << "\n";
+                }
+                if (!profile.description.empty()) {
+                    std::cout << "  ▫️ " << I18n::instance().t("profile.description_label") << ": " << profile.description << "\n";
+                }
+                if (!profile.theme.empty()) {
+                    std::cout << "  🎨 " << I18n::instance().t("profile.theme_label") << ": " << profile.theme << "\n";
+                }
+                std::cout << "  📧 " << I18n::instance().t("profile.contacts_label") << ":\n";
+                if (profile.contacts.empty()) {
+                    std::cout << "    " << I18n::instance().t("profile.no_contacts_provided") << "\n";
+                } else {
+                    for (const auto& contact : profile.contacts) {
+                        std::cout << "    - " << contact.title << ": " << contact.link << "\n";
+                    }
+                }
+                std::cout << "---------------------------\n";
             }
         } else {
             std::cerr << I18n::instance().t("profile.error_unknown_subcommand", {{"subcommand", subcommand}}) << "\n";
@@ -234,11 +254,31 @@ void run_profile_menu() { // TODO: Test this method (Gemini)
                 break;
             }
             case 5: { // Get Active
-                std::string activeProfileName = cipherLock::ProfileManager::getActiveProfileName();
-                if (activeProfileName.empty()) {
+                cipherLock::UserProfile profile = cipherLock::ProfileManager::getActiveProfile();
+                if (profile.name.empty()) {
                     std::cout << I18n::instance().t("profile.no_active_profile") << "\n";
                 } else {
-                    std::cout << I18n::instance().t("profile.current_active_profile", {{"name", activeProfileName}}) << "\n";
+                    // Display full profile details with emojis
+                    std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << "👤 " << I18n::instance().t("profile.details_title", {{"name", profile.name}}) << Theme::instance().color(Theme::RESET) << "\n";
+                    std::cout << "  ▫️ " << I18n::instance().t("profile.name_label") << ": " << profile.name << "\n";
+                    if (!profile.full_name.empty()) {
+                        std::cout << "  ▫️ " << I18n::instance().t("profile.full_name_label") << ": " << profile.full_name << "\n";
+                    }
+                    if (!profile.description.empty()) {
+                        std::cout << "  ▫️ " << I18n::instance().t("profile.description_label") << ": " << profile.description << "\n";
+                    }
+                    if (!profile.theme.empty()) {
+                        std::cout << "  🎨 " << I18n::instance().t("profile.theme_label") << ": " << profile.theme << "\n";
+                    }
+                    std::cout << "  📧 " << I18n::instance().t("profile.contacts_label") << ":\n";
+                    if (profile.contacts.empty()) {
+                        std::cout << "    " << I18n::instance().t("profile.no_contacts_provided") << "\n";
+                    } else {
+                        for (const auto& contact : profile.contacts) {
+                            std::cout << "    - " << contact.title << ": " << contact.link << "\n";
+                        }
+                    }
+                    std::cout << "---------------------------\n";
                 }
                 break;
             }
@@ -551,22 +591,28 @@ int main(int argc, char* argv[]) {
     }
 
     // Display welcome UI for general invocation or unrecognized commands
-    // Pass activeProfileName to UI::print_welcome
     UI::print_welcome(CIPHERLOCK_VERSION, I18n::instance().getLanguageName(), activeProfileName);
 
-    // If no command is given (bare cipherlock call) or an unrecognized command is provided
-    if (arg1.empty() || (arg1 != "boot" && arg1 != "edit" && arg1 != "share" && arg1 != "unlock-file" && arg1 != "profile" && arg1 != "lang" && arg1 != "--help" && arg1 != "-h" && arg1 != "--version" && arg1 != "-v")) {
+    // Determine if the command is recognized
+    bool is_recognized_command =
+        arg1 == "boot" || arg1 == "edit" || arg1 == "share" ||
+        arg1 == "unlock-file" || arg1 == "profile" || arg1 == "lang" ||
+        arg1 == "--help" || arg1 == "-h" || arg1 == "--version" || arg1 == "-v";
+
+    if (!is_recognized_command) { // If command is NOT recognized (includes bare call and truly unrecognized)
         if (activeProfileName.empty()) {
             std::cout << I18n::instance().t("profile.no_active_profile_found_prompt") << "\n";
             std::cout << I18n::instance().t("profile.prompt_create_or_set") << "\n";
         }
-        if (arg1.empty()) { // Only show usage for bare cipherlock call
+
+        if (arg1.empty()) { // Bare call
             UI::print_usage();
-        } else { // For unrecognized command, show error and usage
+            return 0; // Exit with success
+        } else { // Truly unrecognized command
             std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("common.error_unrecognized_command", {{"cmd", arg1}}) << Theme::instance().color(Theme::RESET) << "\n";
             UI::print_usage();
+            return 1; // Exit with error
         }
-        return (arg1.empty() ? 0 : 1); // Exit with success for bare call, error for unrecognized command
     }
 
     // 3. Enforce active profile for commands that NEED it
@@ -650,6 +696,8 @@ int main(int argc, char* argv[]) {
     // This block should ideally not be reached if all commands are correctly handled.
     // It acts as a final catch-all for any missed command handling, but should be rare.
     std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("common.error_unrecognized_command", {{"cmd", arg1}}) << Theme::instance().color(Theme::RESET) << "\n";
+    UI::print_usage();
+    return 1;
     UI::print_usage();
     return 1;
 }
