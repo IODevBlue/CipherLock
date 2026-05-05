@@ -215,22 +215,137 @@ void run_profile_menu() { // TODO: Test this method (Gemini)
                         profile.description = desc;
                     }
 
-                    // Contacts Edit (Simple approach: append new ones or clear and re-add?)
-                    // For now, let's offer to add more or clear.
-                    std::cout << I18n::instance().t("profile.add_contacts_hint") << " (current count: " << profile.contacts.size() << ")\n";
-                    while (true) {
-                        std::cout << I18n::instance().t("profile.contact_title_prompt");
-                        std::string title;
-                        std::getline(std::cin, title);
-                        if (title.empty() || title == "q" || title == "Q") break;
-
-                        std::cout << I18n::instance().t("profile.contact_link_prompt");
-                        std::string link;
-                        std::getline(std::cin, link);
-                        if (link == "q" || link == "Q") continue;
-
-                        profile.contacts.push_back({title, link});
+                    // --- Contacts Management ---
+                    std::cout << "\n" << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("profile.contact_management_title") << Theme::instance().color(Theme::RESET) << "\n";
+                    
+                    // Display existing contacts
+                    if (profile.contacts.empty()) {
+                        std::cout << I18n::instance().t("profile.no_contacts_found") << "\n";
+                    } else {
+                        std::cout << I18n::instance().t("profile.current_contacts") << "\n";
+                        for (size_t i = 0; i < profile.contacts.size(); ++i) {
+                            std::cout << "[" << i << "] " << profile.contacts[i].title << ": " << profile.contacts[i].link << "\n";
+                        }
                     }
+
+                    bool editing_contacts = true;
+                    while(editing_contacts) {
+                        std::cout << "\n" << Theme::instance().color(Theme::INFO) << I18n::instance().t("profile.contact_options") << Theme::instance().color(Theme::RESET) << "\n";
+                        std::cout << Theme::instance().color(Theme::PRIMARY) << I18n::instance().t("ui.selection") << Theme::instance().color(Theme::RESET);
+
+                        int contact_choice;
+                        if (!(std::cin >> contact_choice)) {
+                            std::cin.clear();
+                            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                            continue;
+                        }
+                        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Consume newline
+
+                        switch(contact_choice) {
+                            case 1: { // Add New Contact
+                                std::cout << I18n::instance().t("profile.contact_title_prompt");
+                                std::string title;
+                                std::getline(std::cin, title);
+                                if (title.empty() || title == "q" || title == "Q") break;
+
+                                std::cout << I18n::instance().t("profile.contact_link_prompt");
+                                std::string link;
+                                std::getline(std::cin, link);
+                                if (link == "q" || link == "Q") continue;
+
+                                try {
+                                    cipherLock::ProfileManager::addContact(profile, {title, link});
+                                    std::cout << I18n::instance().t("profile.contact_added_successfully") << "\n";
+                                } catch (const std::runtime_error& e) {
+                                    std::cerr << Theme::instance().color(Theme::ERROR) << e.what() << Theme::instance().color(Theme::RESET) << "\n";
+                                }
+                                break;
+                            }
+                            case 2: { // Edit Contact
+                                std::cout << I18n::instance().t("profile.enter_contact_index");
+                                std::string index_str;
+                                std::getline(std::cin, index_str);
+                                if (index_str == "q" || index_str == "Q") break;
+
+                                try {
+                                    int index = std::stoi(index_str);
+                                    if (index < 0 || index >= profile.contacts.size()) {
+                                        std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_index") << Theme::instance().color(Theme::RESET) << "\n";
+                                        continue;
+                                    }
+
+                                    std::cout << I18n::instance().t("profile.contact_title_prompt_edit", {{"current", profile.contacts[index].title}});
+                                    std::string new_title;
+                                    std::getline(std::cin, new_title);
+                                    if (new_title.empty() || new_title == "q" || new_title == "Q") new_title = profile.contacts[index].title;
+
+                                    std::cout << I18n::instance().t("profile.contact_link_prompt_edit", {{"current", profile.contacts[index].link}});
+                                    std::string new_link;
+                                    std::getline(std::cin, new_link);
+                                    if (new_link.empty() || new_link == "q" || new_link == "Q") new_link = profile.contacts[index].link;
+                                    
+                                    cipherLock::ProfileManager::editContact(profile, index, {new_title, new_link});
+                                    std::cout << I18n::instance().t("profile.contact_edited_successfully") << "\n";
+                                } catch (const std::out_of_range& e) {
+                                     std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_index") << Theme::instance().color(Theme::RESET) << "\n";
+                                } catch (const std::runtime_error& e) {
+                                    std::cerr << Theme::instance().color(Theme::ERROR) << e.what() << Theme::instance().color(Theme::RESET) << "\n";
+                                } catch (const std::exception& e) { // Catch potential stoi errors etc.
+                                    std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_input") << Theme::instance().color(Theme::RESET) << "\n";
+                                }
+                                break;
+                            }
+                            case 3: { // Delete Contact
+                                std::cout << I18n::instance().t("profile.enter_contact_index_to_delete");
+                                std::string index_str;
+                                std::getline(std::cin, index_str);
+                                if (index_str == "q" || index_str == "Q") break;
+
+                                try {
+                                    int index = std::stoi(index_str);
+                                    if (index < 0 || index >= profile.contacts.size()) {
+                                        std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_index") << Theme::instance().color(Theme::RESET) << "\n";
+                                        continue;
+                                    }
+
+                                    // Confirmation prompt
+                                    std::cout << I18n::instance().t("profile.confirm_delete_contact", {{"title", profile.contacts[index].title}, {"link", profile.contacts[index].link}});
+                                    std::string confirm;
+                                    std::getline(std::cin, confirm);
+                                    if (confirm == "y" || confirm == "Y") {
+                                        cipherLock::ProfileManager::deleteContact(profile, index);
+                                        std::cout << I18n::instance().t("profile.contact_deleted_successfully") << "\n";
+                                    } else {
+                                        std::cout << I18n::instance().t("profile.delete_cancelled") << "\n";
+                                    }
+                                } catch (const std::out_of_range& e) {
+                                     std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_index") << Theme::instance().color(Theme::RESET) << "\n";
+                                } catch (const std::runtime_error& e) {
+                                    std::cerr << Theme::instance().color(Theme::ERROR) << e.what() << Theme::instance().color(Theme::RESET) << "\n";
+                                } catch (const std::exception& e) { // Catch potential stoi errors etc.
+                                    std::cerr << Theme::instance().color(Theme::ERROR) << I18n::instance().t("profile.error_invalid_input") << Theme::instance().color(Theme::RESET) << "\n";
+                                }
+                                break;
+                            }
+                            case 4: { // Skip Contacts / Finish Contact Editing
+                                editing_contacts = false;
+                                break;
+                            }
+                            default:
+                                std::cout << Theme::instance().color(Theme::ERROR) << I18n::instance().t("ui.invalid_option") << Theme::instance().color(Theme::RESET) << "\n";
+                        }
+                        // After any contact modification (add, edit, delete), re-display contacts and options
+                        if (editing_contacts) {
+                            if (profile.contacts.empty()) {
+                                std::cout << I18n::instance().t("profile.no_contacts_found") << "\n";
+                            } else {
+                                std::cout << I18n::instance().t("profile.current_contacts") << "\n";
+                                for (size_t i = 0; i < profile.contacts.size(); ++i) {
+                                    std::cout << "[" << i << "] " << profile.contacts[i].title << ": " << profile.contacts[i].link << "\n";
+                                }
+                            }
+                        }
+                    } // End of while(editing_contacts)
 
                     cipherLock::ProfileManager::saveProfile(profile);
                     std::cout << I18n::instance().t("profile.profile_updated_successfully", {{"name", profile.name}}) << "\n";
@@ -239,6 +354,7 @@ void run_profile_menu() { // TODO: Test this method (Gemini)
                 }
                 break;
             }
+            // ... rest of the cases for run_profile_menu ...
             case 4: { // Switch
                 std::string profileName;
                 std::cout << I18n::instance().t("profile.enter_name_to_set_active");
@@ -278,7 +394,7 @@ void run_profile_menu() { // TODO: Test this method (Gemini)
                             std::cout << "    - " << contact.title << ": " << contact.link << "\n";
                         }
                     }
-                    std::cout << "---------------------------\n";
+                    std::cout << "\n---------------------------\n";
                 }
                 break;
             }

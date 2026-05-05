@@ -145,7 +145,21 @@
         "full_name_label": "Nom Complet",
         "description_label": "Description",
         "theme_label": "Thème",
-        "contacts_label": "Contacts"
+        "contacts_label": "Contacts",
+        "contact_management_title": "--- Gestion des Contacts ---",
+        "current_contacts": "Contacts actuels :",
+        "contact_options": "[1] Ajouter un Nouveau Contact | [2] Modifier un Contact | [3] Supprimer un Contact | [4] Terminer la Modification des Contacts",
+        "enter_contact_index": "Entrez l'index du contact à modifier : ",
+        "enter_contact_index_to_delete": "Entrez l'index du contact à supprimer : ",
+        "contact_title_prompt_edit": "Entrez le nouveau titre pour '{current}' (tapez 'q' pour conserver l'actuel) : ",
+        "contact_link_prompt_edit": "Entrez le nouveau lien/valeur pour '{current}' (tapez 'q' pour conserver l'actuel) : ",
+        "confirm_delete_contact": "Êtes-vous sûr de vouloir supprimer le contact '{title}: {link}' ? (o/n) : ",
+        "contact_added_successfully": "✅ Contact ajouté avec succès.",
+        "contact_edited_successfully": "✅ Contact modifié avec succès.",
+        "contact_deleted_successfully": "✅ Contact supprimé avec succès.",
+        "delete_cancelled": "Suppression annulée.",
+        "error_invalid_index": "❌ Index invalide. Veuillez entrer un nombre dans la plage valide.",
+        "error_invalid_input": "❌ Entrée invalide. Veuillez entrer une option valide."
     },
     "signature": {
         "report_header": "--- Rapport de conflit CipherLock ---",
@@ -162,6 +176,6 @@
         "default_header_contacts_title": "Contacts :",
         "default_header_contacts_placeholder": "{{CONTACT_LIST}}",
         "default_header_warning": "ATTENTION : NE PAS MODIFIER OU ALTÉRER LE CONTENU DE CE FICHIER. Toute modification entraînera une corruption permanente des données et l'échec du déchiffrement.",
-        "restoring_key": "Restauration de la clé maître du projet à partir de la sauvegarde du profil..."
+        "restoring_key": "Restauration de la clé maître du profil..."
     }
 }

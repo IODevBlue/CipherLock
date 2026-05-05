@@ -145,7 +145,21 @@
         "full_name_label": "Full Name",
         "description_label": "Description",
         "theme_label": "Theme",
-        "contacts_label": "Contacts"
+        "contacts_label": "Contacts",
+        "contact_management_title": "--- Contact Management ---",
+        "current_contacts": "Current Contacts:",
+        "contact_options": "[1] Add New Contact | [2] Edit Contact | [3] Delete Contact | [4] Finish Contact Editing",
+        "enter_contact_index": "Enter the index of the contact to modify: ",
+        "enter_contact_index_to_delete": "Enter the index of the contact to delete: ",
+        "contact_title_prompt_edit": "Enter new title for '{current}' (type 'q' to keep current): ",
+        "contact_link_prompt_edit": "Enter new link/value for '{current}' (type 'q' to keep current): ",
+        "confirm_delete_contact": "Are you sure you want to delete contact '{title}: {link}'? (y/n): ",
+        "contact_added_successfully": "✅ Contact added successfully.",
+        "contact_edited_successfully": "✅ Contact edited successfully.",
+        "contact_deleted_successfully": "✅ Contact deleted successfully.",
+        "delete_cancelled": "Deletion cancelled.",
+        "error_invalid_index": "❌ Invalid index. Please enter a number within the valid range.",
+        "error_invalid_input": "❌ Invalid input. Please enter a valid option."
     },
     "signature": {
         "report_header": "--- CipherLock Conflict Report ---",
