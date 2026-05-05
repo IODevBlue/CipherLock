@@ -1,8 +1,22 @@
 #include "ProfileManager.hpp"
 #include <iostream> // For debugging, remove later
-#include <stdexcept>
 #include <cstdlib> // For getenv
-#include <fstream> // For file operations
+#include <algorithm> // For std::find_if
+#include <iterator>  // For std::istreambuf_iterator
+#include <iomanip>   // For std::setw
+#include <string>    // For std::to_string
+#include <stdexcept> // For std::out_of_range, std::runtime_error
+#include <vector>    // For std::vector
+#include <filesystem> // For std::filesystem
+#include <cstdlib>   // For std::getenv
+#include <fstream>   // For std::ifstream, std::ofstream
+#include <iostream>  // For std::cerr
+#include <cstring>   // For std::strerror
+
+#include "nlohmann/json.hpp" // Assuming nlohmann/json.hpp is available
+
+#include "ProfileManager.hpp"
+
 
 namespace cipherLock {
 
@@ -45,7 +59,7 @@ void ProfileManager::ensureUserProfileBaseDirExists() { // TODO: Test this metho
             throw std::runtime_error("ERROR: Failed to create base user profile directory: " + baseDir.string() + " (" + ec.message() + ")");
         }
     }
-    
+
     if (!fs::exists(profilesDir)) {
         std::error_code ec;
         if (!fs::create_directories(profilesDir, ec)) {
@@ -114,7 +128,7 @@ void ProfileManager::saveProfile(const UserProfile& profile) { // TODO: Test thi
 std::vector<std::string> ProfileManager::listProfiles() { // TODO: Test this method (Gemini)
     std::vector<std::string> profiles;
     fs::path baseDir = getUserProfileBaseDir() / "profiles";
-    
+
     if (!fs::exists(baseDir) || !fs::is_directory(baseDir)) {
         return profiles; // No profiles if directory doesn't exist or isn't a directory
     }
@@ -134,24 +148,21 @@ void ProfileManager::setActiveProfile(const std::string& profileName) { // TODO:
         throw std::runtime_error("ERROR: Cannot set active profile: Profile '" + profileName + "' does not exist.");
     }
 
-    fs::path activeProfileSymlink = getUserProfileBaseDir() / "active_profile.json";
+    fs::path activeProfileMarker = getUserProfileBaseDir() / "active_profile.json";
     std::error_code ec;
 
     // Remove existing symlink/file if it exists
-    if (fs::exists(activeProfileSymlink, ec)) {
-        fs::remove(activeProfileSymlink, ec);
+    if (fs::exists(activeProfileMarker, ec)) {
+        fs::remove(activeProfileMarker, ec);
         if (ec) {
             throw std::runtime_error("ERROR: Failed to remove existing active profile link: " + ec.message());
         }
     }
 
-    // Create a new symlink to the chosen profile
-    // Note: fs::create_symlink might not be available or work identically on all platforms
-    // For simplicity, a file containing the profile name might be more robust cross-platform.
-    // For now, let's use a simple file with the active profile name.
-    std::ofstream ofs(activeProfileSymlink);
+    // Create a new file containing the active profile name
+    std::ofstream ofs(activeProfileMarker);
     if (!ofs.is_open()) {
-        throw std::runtime_error("ERROR: Failed to create active profile marker file: " + activeProfileSymlink.string());
+        throw std::runtime_error("ERROR: Failed to create active profile marker file: " + activeProfileMarker.string());
     }
     ofs << profileName << std::endl;
     if (ofs.fail()) {
@@ -160,12 +171,12 @@ void ProfileManager::setActiveProfile(const std::string& profileName) { // TODO:
 }
 
 std::string ProfileManager::getActiveProfileName() { // TODO: Test this method (Gemini)
-    fs::path activeProfileSymlink = getUserProfileBaseDir() / "active_profile.json";
-    if (!fs::exists(activeProfileSymlink)) {
+    fs::path activeProfileMarker = getUserProfileBaseDir() / "active_profile.json";
+    if (!fs::exists(activeProfileMarker)) {
         return ""; // No active profile set
     }
 
-    std::ifstream ifs(activeProfileSymlink);
+    std::ifstream ifs(activeProfileMarker);
     if (!ifs.is_open()) {
         // This case should ideally not happen if fs::exists returned true
         return "";
@@ -205,6 +216,51 @@ std::string ProfileManager::getProjectKeyBackup(const std::string& profileName, 
     if (!ifs) return "";
 
     return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+}
+
+
+auto ProfileManager::findContactByTitle(UserProfile& profile, const std::string& title) { // TODO: Test this method (Gemini)
+    return std::find_if(profile.contacts.begin(), profile.contacts.end(),
+                        [&title](const UserProfile::Contact& c) {
+                            return c.title == title;
+                        });
+}
+
+void ProfileManager::addContact(UserProfile& profile, const UserProfile::Contact& newContact) { // TODO: Test this method (Gemini)
+    if (newContact.title.empty()) {
+        throw std::runtime_error("ERROR: Contact title cannot be empty.");
+    }
+    // Check for duplicate title
+    if (findContactByTitle(profile, newContact.title) != profile.contacts.end()) {
+        throw std::runtime_error("ERROR: A contact with the title '" + newContact.title + "' already exists.");
+    }
+    profile.contacts.push_back(newContact);
+}
+
+void ProfileManager::editContact(UserProfile& profile, int index, const UserProfile::Contact& updatedContact) { // TODO: Test this method (Gemini)
+    if (index < 0 || index >= profile.contacts.size()) {
+        throw std::out_of_range("ERROR: Invalid contact index: " + std::to_string(index));
+    }
+    if (updatedContact.title.empty()) {
+        throw std::runtime_error("ERROR: Contact title cannot be empty.");
+    }
+
+    // Check for duplicate title if the title is being changed and it conflicts with another existing contact (not itself)
+    if (profile.contacts[index].title != updatedContact.title) {
+        auto it = findContactByTitle(profile, updatedContact.title);
+        if (it != profile.contacts.end()) {
+            throw std::runtime_error("ERROR: A contact with the title '" + updatedContact.title + "' already exists.");
+        }
+    }
+
+    profile.contacts[index] = updatedContact;
+}
+
+void ProfileManager::deleteContact(UserProfile& profile, int index) { // TODO: Test this method (Gemini)
+    if (index < 0 || index >= profile.contacts.size()) {
+        throw std::out_of_range("ERROR: Invalid contact index: " + std::to_string(index));
+    }
+    profile.contacts.erase(profile.contacts.begin() + index);
 }
 
 } // namespace cipherLock

@@ -103,7 +103,7 @@ void run_profile_command(int argc, char* argv[]) { // TODO: Test this method (mo
                         std::cout << "    - " << contact.title << ": " << contact.link << "\n";
                     }
                 }
-                std::cout << "---------------------------\n";
+                std::cout << "\n---------------------------\n";
             }
         } else {
             std::cerr << I18n::instance().t("profile.error_unknown_subcommand", {{"subcommand", subcommand}}) << "\n";

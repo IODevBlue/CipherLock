@@ -71,6 +71,41 @@ inline void from_json(const nlohmann::json& j, UserProfile& p) { // TODO: Test t
  */
 class ProfileManager {
 public:
+ 
+    /**
+     * @brief Adds a new contact to a given profile.
+     * @param profile The UserProfile object to modify.
+     * @param newContact The Contact object to add.
+     * @throws std::runtime_error if a contact with the same title already exists or title is empty.
+     */
+    static void addContact(UserProfile& profile, const UserProfile::Contact& newContact); // TODO: Test this method (Gemini)
+
+    /**
+     * @brief Edits an existing contact in a given profile by its index.
+     * @param profile The UserProfile object to modify.
+     * @param index The 0-based index of the contact to edit.
+     * @param updatedContact The Contact object with updated details.
+     * @throws std::out_of_range if the index is invalid.
+     * @throws std::runtime_error if a contact with the same title already exists (and is not the contact being edited) or title is empty.
+     */
+    static void editContact(UserProfile& profile, int index, const UserProfile::Contact& updatedContact); // TODO: Test this method (Gemini)
+
+    /**
+     * @brief Deletes a contact from a given profile by its index.
+     * @param profile The UserProfile object to modify.
+     * @param index The 0-based index of the contact to delete.
+     * @throws std::out_of_range if the index is invalid.
+     */
+    static void deleteContact(UserProfile& profile, int index); // TODO: Test this method (Gemini)
+
+    /**
+     * @brief Finds a contact by its title within a profile.
+     * @param profile The UserProfile object to search within.
+     * @param title The title of the contact to find.
+     * @return An iterator to the found contact, or profile.contacts.end() if not found.
+     */
+    static auto findContactByTitle(UserProfile& profile, const std::string& title); // TODO: Test this method (Gemini)
+   
     /**
      * @brief Get the base directory for CipherLock user profiles.
      *
